@@ -532,22 +532,26 @@ def mdisktext(client: pyrogram.client.Client, message: pyrogram.types.messages_a
 
     text = message.text
     mdisk_urls = re.findall('https?://(?:[-\w.]|(?:%[\da-fA-F]{2}))+/[-\w./?=&#%]*', text)
+    
+    if "https://mdisk.me/" in message.text:
+        text = message.text
+        urls = re.findall('https?://(?:[-\w.]|(?:%[\da-fA-F]{2}))+/[-\w./?=&#%]*', text)
 
-    if "https://mdisk.me/" in mdisk_urls:
+        if "https://mdisk.me/" in urls:
 
-        links = message.text.split("\n")
+            links = message.text.split("\n")
 
-        if len(links) == 1:
+            if len(links) == 1:
 
-            d = threading.Thread(target=lambda:down(message,links[0]),daemon=True)
+                d = threading.Thread(target=lambda:down(message,links[0]),daemon=True)
 
-            d.start()
+                d.start()
 
-        else:
+            else:
 
-            d = threading.Thread(target=lambda:multilinks(message,links),daemon=True)
+                d = threading.Thread(target=lambda:multilinks(message,links),daemon=True)
 
-            d.start()   
+                d.start()   
 
     else:
 
