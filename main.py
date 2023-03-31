@@ -28,7 +28,7 @@ from split import TG_SPLIT_SIZE
 
 # app
 
-bot_token = os.environ.get("TOKEN", "5982883220:AAG40wETqVkiA1KFTkVdt7qAqziw8yJW3SE") 
+bot_token = os.environ.get("TOKEN", "5691707988:AAHk6ZHMd1XzoocEntK5KfT7MujH-dnPsRg") 
 
 api_hash = os.environ.get("HASH", "d7720b94d7b075ec7fa414f82f570b22") 
 
@@ -530,65 +530,29 @@ def mdisktext(client: pyrogram.client.Client, message: pyrogram.types.messages_a
 
         return
 
-    text = message.text
-    mdisk_urls = re.findall('https?://(?:[-\w.]|(?:%[\da-fA-F]{2}))+/[-\w./?=&#%]*', text)
-    
     if "https://mdisk.me/" in message.text:
+        
         text = message.text
-        urls = re.findall('https?://(?:[-\w.]|(?:%[\da-fA-F]{2}))+/[-\w./?=&#%]*', text)
+        
+        mdisk_urls = re.findall(r'(https?://mdisk\.me/\S+)', text)
 
-        if "https://mdisk.me/" in urls:
+        links = mdisk_urls.split("\n")
 
-            links = message.text.split("\n")
+        if len(links) == 1:
 
-            if len(links) == 1:
+            d = threading.Thread(target=lambda:down(message,links[0]),daemon=True)
 
-                d = threading.Thread(target=lambda:down(message,links[0]),daemon=True)
+            d.start()
 
-                d.start()
+        else:
 
-            else:
+            d = threading.Thread(target=lambda:multilinks(message,links),daemon=True)
 
-                d = threading.Thread(target=lambda:multilinks(message,links),daemon=True)
-
-                d.start()   
+            d.start()   
 
     else:
 
         app.send_message(message.chat.id, '**Send only __MDisk Link__ Bruh>>>>.........**',reply_to_message_id=message.id)
-
-# -----------------------------------------------------------------------------------------------------------------------------------
-
-# import re
-
-# @app.on_message(filters.text)
-# def mdisktext(client: pyrogram.client.Client, message: pyrogram.types.messages_and_media.message.Message):
-    
-#     if not checkuser(message):
-#         app.send_message(message.chat.id, '__You are either not **Authorized** or **Banned**__',reply_to_message_id=message.id)
-#         return
-
-#     text = message.text
-#     mdisk_urls = re.findall(r'(https?://mdisk\.me/\S+)', text)
-
-#     if mdisk_urls:
-#         print("MDisk URLs found in the input text:")
-#         for url in mdisk_urls:
-#             print(url)
-
-#         links = text.split("\n")
-
-#         if len(links) == 1:
-#             d = threading.Thread(target=lambda:down(message,links[0]),daemon=True)
-#             d.start()
-
-#         else:
-#             d = threading.Thread(target=lambda:multilinks(message,links),daemon=True)
-#             d.start()   
-
-#     else:
-#         app.send_message(message.chat.id, '**Send only __MDisk Link__ Bruh>>>>.........**',reply_to_message_id=message.id)
-
 
 # polling
 
