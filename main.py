@@ -536,7 +536,7 @@ def mdisktext(client: pyrogram.client.Client, message: pyrogram.types.messages_a
         
         mdisk_urls = re.findall(r'(https?://mdisk\.me/\S+)', text)
 
-        links = mdisk_urls.split("\n")
+        links = mdisk_urls
 
         if len(links) == 1:
 
