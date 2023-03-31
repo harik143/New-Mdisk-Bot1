@@ -2,6 +2,8 @@ import os
 
 import re
 
+import speedtest_cli
+
 import threading
 
 import subprocess
@@ -79,6 +81,8 @@ def help(client: pyrogram.client.Client, message: pyrogram.types.messages_and_me
 
 **/help** - this message
 
+**/speedtest** - speedtest
+
 **/mdisk mdisklink** - usage
 
 **/thumb** - reply to a image document of size less than 200KB to set it as Thumbnail ( you can also send image as a photo to set it as Thumbnail automatically )
@@ -93,6 +97,24 @@ def help(client: pyrogram.client.Client, message: pyrogram.types.messages_and_me
 
     reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🧑‍💻 𝐃𝐄𝐕",url="https://t.me/fligher")]]))
     
+# define an event handler for the /speedtest command
+@app.on_message(pyrogram.filters.command(["speedtest"]))
+async def speedtest(client, message):
+    msg = await message.reply_text('Running a speed test. This might take a while...')
+    try:
+        st = speedtest_cli.Speedtest()
+        st.get_best_server()
+        download_speed = st.download() / 1024 / 1024
+        upload_speed = st.upload() / 1024 / 1024
+        result_img = st.results.share()
+        await client.send_photo(
+            chat_id=message.chat.id,
+            photo=result_img,
+            caption=f'Speed test results:\nDownload speed: {download_speed:.2f} Mbps\nUpload speed: {upload_speed:.2f} Mbps'
+        )
+    except Exception as e:
+        await msg.edit(f'An error occurred while running the speed test: {e}')
+
 # check for user access
 
 def checkuser(message):
