@@ -25,7 +25,7 @@ else:
 
 # asking user for the links to download
 urls = input('Enter the Links (separated by space or "\\n"): ')
-urls_list = urls.split() if ' ' in urls else urls.split('\n')
+urls_list = re.findall(r'(https?://teraboxapp\.com/\S+)', urls)
 
 def download_video(url):
     redirects = requests.get(url=url)
@@ -67,6 +67,5 @@ def download_video(url):
         subprocess.run([aria2c, '--console-log-level=warn', '-x', '16', '-s', '16', '-j', '16', '-k', '1M', '--file-allocation=none', '--summary-interval=10', resp])
 
 # download videos using multiprocessing
-if __name__ == '__main__':
-    with Pool(processes=len(urls_list)) as pool:
-        pool.map(download_video, urls_list)
+with Pool(processes=len(urls_list)) as pool:
+    pool.map(download_video, urls_list)
