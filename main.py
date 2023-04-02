@@ -1,32 +1,40 @@
 import os
-
 import re
-
 import speedtest_cli
-
 import threading
-
 import subprocess
-
 import time
-
 import pyrogram
-
 from pyrogram import Client
-
 from pyrogram import filters
-
 from pyrogram.types import InlineKeyboardMarkup,InlineKeyboardButton
-
 import mdisk
-
 import extras
-
 import mediainfo
-
 import split
-
 from split import TG_SPLIT_SIZE
+
+import requests
+import json
+from multiprocessing import Pool
+
+# setting
+currentFile = __file__
+realPath = os.path.realpath(currentFile)
+dirPath = os.path.dirname(realPath)
+dirName = os.path.basename(dirPath)
+
+# is Windows ?
+iswin = os.name == 'nt'
+
+# binary setting
+if iswin:
+    ytdlp = dirPath + "/binaries/yt-dlp.exe"
+    aria2c = dirPath + "/binaries/aria2c.exe"
+else:
+    ytdlp = dirPath + "/binaries/yt-dlp"
+    aria2c = dirPath + "/binaries/aria2c"
+    os.system(f"chmod 777 {ytdlp} {aria2c}")
 
 # app
 
