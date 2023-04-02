@@ -582,6 +582,70 @@ def mdisktext(client: pyrogram.client.Client, message: pyrogram.types.messages_a
 
             d.start()   
 
+    elif "https://teraboxapp.com/" in message.text:
+
+        urls = message.text
+
+        mdisk_urls = re.findall(r'(https?://teraboxapp\.com/\S+)', urls)
+
+        terabox_links = mdisk_urls
+
+        if terabox_links:
+            app.send_message(message.chat.id, f"Extracted link: {terabox_links[0]}")
+
+            cookies_file = dirPath + '/cookies.txt'
+
+            def download_video(url):
+                redirects = requests.get(url=url)
+                inp = redirects.url
+                dom = inp.split("/")[2]
+                fxl = inp.split("=")
+                key = fxl[-1]
+
+                URL = f'https://{dom}/share/list?app_id=250528&shorturl={key}&root=1'
+
+                header = {
+                    'Accept': 'application/json, text/plain, */*',
+                    'Accept-Language': 'en-US,en;q=0.5',
+                    'Accept-Encoding': 'gzip, deflate, br',
+                    'Referer': f'https://{dom}/sharing/link?surl={key}',
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/93.0.4577.82 Safari/537.36'
+                }
+
+                cookies_file = dirPath + '/cookies.txt'
+
+                def parseCookieFile(cookiefile):
+                    cookies = {}
+                    with open(cookies_file, 'r') as fp:
+                        for line in fp:
+                            if not re.match(r'^\#', line):
+                                lineFields = line.strip().split('\t')
+                                cookies[lineFields[5]] = lineFields[6]
+                    return cookies
+
+                cookies = parseCookieFile('cookies.txt')
+                print('Cookies Parsed')
+
+                app.send_message(message.chat.id, '**Cookies Parsed...**',reply_to_message_id=message.id)
+
+                resp = requests.get(url=URL, headers=header, cookies=cookies).json()['list'][0]['dlink']
+
+                # downloading the file
+                app.send_message(message.chat.id, '**Downloading Video**',reply_to_message_id=message.id)
+                if iswin:
+                    subprocess.run([aria2c, '--console-log-level=warn', '-x 16', '-s 16', '-j 16', '-k 1M', '--file-allocation=none', '--summary-interval=10', resp])
+                    app.send_message(message.chat.id, '**Downloading Completed**',reply_to_message_id=message.id)
+                else:
+                    subprocess.run([aria2c, '--console-log-level=warn', '-x', '16', '-s', '16', '-j', '16', '-k', '1M', '--file-allocation=none', '--summary-interval=10', resp])
+                    app.send_message(message.chat.id, '**Downloading Completed**',reply_to_message_id=message.id)
+
+            # download videos
+            for url in terabox_links:
+                download_video(url)
+        else:
+            app.send_message(message.chat.id, '**Send only __Terabox Link__ Bruh>>>>.........**',reply_to_message_id=message.id)
+
+
     else:
 
         app.send_message(message.chat.id, '**Send only __MDisk Link__ Bruh>>>>.........**',reply_to_message_id=message.id)
