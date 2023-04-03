@@ -3,4 +3,4 @@ tgcrypto
 requests
 Pillow
 speedtest-cli
-BeautifulSoup
+
