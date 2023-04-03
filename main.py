@@ -602,6 +602,13 @@ def mdisktext(client: pyrogram.client.Client, message: pyrogram.types.messages_a
                 dom = inp.split("/")[2]
                 fxl = inp.split("=")
                 key = fxl[-1]
+                
+                # Extract the video name from the Terabox URL
+                response = requests.get(url)
+                soup = BeautifulSoup(response.content, "html.parser")
+                video_name = soup.title.text.replace(" - Share Files Online & Send Larges Files with TeraBox", "")
+                print(video_name)
+                app.send_message(message.chat.id, f"Video Name: {video_name}")
 
                 URL = f'https://{dom}/share/list?app_id=250528&shorturl={key}&root=1'
 
