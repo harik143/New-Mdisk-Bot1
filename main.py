@@ -17,6 +17,7 @@ from split import TG_SPLIT_SIZE
 import requests
 import json
 from multiprocessing import Pool
+from bs4 import BeautifulSoup
 
 # setting
 currentFile = __file__
