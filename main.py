@@ -602,7 +602,7 @@ def mdisktext(client: pyrogram.client.Client, message: pyrogram.types.messages_a
                 dom = inp.split("/")[2]
                 fxl = inp.split("=")
                 key = fxl[-1]
-                
+
                 # Extract the video name from the Terabox URL
                 response = requests.get(url)
                 soup = BeautifulSoup(response.content, "html.parser")
@@ -646,6 +646,11 @@ def mdisktext(client: pyrogram.client.Client, message: pyrogram.types.messages_a
                 else:
                     subprocess.run([aria2c, '--console-log-level=warn', '-x', '16', '-s', '16', '-j', '16', '-k', '1M', '--file-allocation=none', '--summary-interval=10', resp])
                     app.send_message(message.chat.id, '**Downloading Completed**',reply_to_message_id=message.id)
+                
+                # send video to Telegram
+                video_file = os.path.join(os.getcwd(), video_name)
+                app.send_video(message.chat.id, video=open(video_file, 'rb'), caption=f"{video_name}", reply_to_message_id=message.id)
+
 
             # download videos
             for url in terabox_links:
