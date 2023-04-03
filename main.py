@@ -608,7 +608,11 @@ def mdisktext(client: pyrogram.client.Client, message: pyrogram.types.messages_a
                 soup = BeautifulSoup(response.content, "html.parser")
                 video_name = soup.title.text.replace(" - Share Files Online & Send Larges Files with TeraBox", "")
                 print(video_name)
-                app.send_message(message.chat.id, f"Video Name: {video_name}")
+                # app.send_message(message.chat.id, f"Video Name: {video_name}")
+                # msg = app.send_message(message.chat.id, f"Video Name: {video_name}"reply_to_message_id=message.id)
+
+                msg = app.send_message(message.chat.id, f"Video Name: {video_name}", reply_to_message_id=message.id)
+
 
                 URL = f'https://{dom}/share/list?app_id=250528&shorturl={key}&root=1'
 
@@ -634,18 +638,18 @@ def mdisktext(client: pyrogram.client.Client, message: pyrogram.types.messages_a
                 cookies = parseCookieFile('cookies.txt')
                 print('Cookies Parsed')
 
-                app.send_message(message.chat.id, '**Cookies Parsed...**',reply_to_message_id=message.id)
+                app.edit_message_text(message.chat.id, msg.id, text=f'**Cookies Parsed...**')
 
                 resp = requests.get(url=URL, headers=header, cookies=cookies).json()['list'][0]['dlink']
 
                 # downloading the file
-                app.send_message(message.chat.id, '**Downloading Video**',reply_to_message_id=message.id)
+                app.edit_message_text(message.chat.id, msg.id, text=f'**Downloading Video**')
                 if iswin:
                     subprocess.run([aria2c, '--console-log-level=warn', '-x 16', '-s 16', '-j 16', '-k 1M', '--file-allocation=none', '--summary-interval=10', resp])
-                    app.send_message(message.chat.id, '**Downloading Completed**',reply_to_message_id=message.id)
+                    app.edit_message_text(message.chat.id, msg.id, text=f'**Downloading Completed**')
                 else:
                     subprocess.run([aria2c, '--console-log-level=warn', '-x', '16', '-s', '16', '-j', '16', '-k', '1M', '--file-allocation=none', '--summary-interval=10', resp])
-                    app.send_message(message.chat.id, '**Downloading Completed**',reply_to_message_id=message.id)
+                    app.edit_message_text(message.chat.id, msg.id, text=f'**Downloading Completed**')
                 
                 # send video to Telegram
                 video_file = os.path.join(os.getcwd(), video_name)
