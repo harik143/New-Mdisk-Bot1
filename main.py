@@ -592,7 +592,7 @@ def mdisktext(client: pyrogram.client.Client, message: pyrogram.types.messages_a
         terabox_links = mdisk_urls
 
         if terabox_links:
-            app.send_message(message.chat.id, f"Extracted link: {terabox_links[0]}")
+            # app.send_message(message.chat.id, f"Extracted link: {terabox_links[0]}")
 
             cookies_file = dirPath + '/cookies.txt'
 
@@ -651,9 +651,14 @@ def mdisktext(client: pyrogram.client.Client, message: pyrogram.types.messages_a
                     subprocess.run([aria2c, '--console-log-level=warn', '-x', '16', '-s', '16', '-j', '16', '-k', '1M', '--file-allocation=none', '--summary-interval=10', resp])
                     app.edit_message_text(message.chat.id, msg.id, text=f'**Downloading Completed**')
                 
+                # # send video to Telegram
+                # video_file = os.path.join(os.getcwd(), video_name)
+                # app.send_video(message.chat.id, video=open(video_file, 'rb'), caption=f"{video_name}", reply_to_message_id=message.id)
+
                 # send video to Telegram
                 video_file = os.path.join(os.getcwd(), video_name)
-                app.send_video(message.chat.id, video=open(video_file, 'rb'), caption=f"{video_name}", reply_to_message_id=message.id)
+                with open(video_file, 'rb') as f:
+                    app.send_video(message.chat.id, video=f, caption=f"{video_name}", supports_streaming=True, reply_to_message_id=message.id)
 
 
             # download videos
