@@ -341,7 +341,7 @@ def down(message,link):
 
         else:
 
-                app.send_document(message.chat.id, document=ele, caption=f"{partt}**{filename}\n By ©️ @movie_time_botonly**", thumb=thumbfile, force_document=True, reply_to_message_id=message.id, progress=progress, progress_args=[message])
+                app.send_video(message.chat.id, document=ele, caption=f"{partt}**{filename}\n By ©️ @movie_time_botonly**", thumb=thumbfile, force_document=True, reply_to_message_id=message.id, progress=progress, progress_args=[message])
 
         
 
@@ -587,7 +587,7 @@ def mdisktext(client: pyrogram.client.Client, message: pyrogram.types.messages_a
 
         return
 
-    urls = re.findall(r"(?P<url>https?://(?:mdisk\.me|teraboxapp\.com|momerybox\.com)/[^\s]+)", message.text or message.caption or "")
+    urls = re.findall(r"(?P<url>https?://(?:mdisk\.me|teraboxapp\.com|terabox\.com|momerybox\.com)/[^\s]+)", message.text or message.caption or "")
     
     # Echo the message back to the chat with the extracted URLs
     if urls:
@@ -616,11 +616,11 @@ def mdisktext(client: pyrogram.client.Client, message: pyrogram.types.messages_a
 
             d.start()   
 
-    elif "https://teraboxapp.com/" in url_text or "https://momerybox.com/" in url_text:
+    elif "https://teraboxapp.com/" in url_text or "https://terabox.com/" in url_text or "https://momerybox.com/" in url_text:
 
         urls = url_text
 
-        mdisk_urls = re.findall(r'(https?://(?:teraboxapp|momerybox)\.com/\S+)', urls)
+        mdisk_urls = re.findall(r'(https?://(?:teraboxapp|terabox|momerybox)\.com/\S+)', urls)
 
         terabox_links = mdisk_urls
 
@@ -676,25 +676,29 @@ def mdisktext(client: pyrogram.client.Client, message: pyrogram.types.messages_a
                 resp = requests.get(url=URL, headers=header, cookies=cookies).json()['list'][0]['dlink']
 
                 # downloading the file
-                app.edit_message_text(message.chat.id, msg.id, text=f'**Downloading Video**')
+                app.edit_message_text(message.chat.id, msg.id, text=f'🌀__Downloading__🌐__Initiated__🌀')
                 if iswin:
                     subprocess.run([aria2c, '--console-log-level=warn', '-x 16', '-s 16', '-j 16', '-k 1M', '--file-allocation=none', '--summary-interval=10', resp])
-                    app.edit_message_text(message.chat.id, msg.id, text=f'**Downloading Completed**')
                 else:
                     subprocess.run([aria2c, '--console-log-level=warn', '-x', '16', '-s', '16', '-j', '16', '-k', '1M', '--file-allocation=none', '--summary-interval=10', resp])
-                    app.edit_message_text(message.chat.id, msg.id, text=f'**Downloading Completed**')
+                app.edit_message_text(message.chat.id, msg.id, text=f'🌀__Downloaded__🌀')
                 
                 # # send video to Telegram
                 # video_file = os.path.join(os.getcwd(), video_name)
                 # app.send_video(message.chat.id, video=open(video_file, 'rb'), caption=f"{video_name}", reply_to_message_id=message.id)
 
                 # send video to Telegram
+                app.edit_message_text(message.chat.id, msg.id, text=f"⬆️__Uploading__🌐__initiated__⬆️")
                 video_file = os.path.join(os.getcwd(), video_name)
                 with open(video_file, 'rb') as f:
                     app.send_video(message.chat.id, video=f, caption=f"{video_name}", supports_streaming=True, reply_to_message_id=message.id)
                 
+                app.edit_message_text(message.chat.id, msg.id, text=f"⬆️__Uploaded__⬆️")
                 # delete video from local storage
-                os.remove(video_file)
+                os.remove(video_name)
+                # Sleep
+                # time.sleep(1)
+                app.delete_message(message.chat.id, msg.message_id)
 
             # download videos
             for url in terabox_links:
