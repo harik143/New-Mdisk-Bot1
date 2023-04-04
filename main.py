@@ -483,25 +483,25 @@ def removethumb(client: pyrogram.client.Client, message: pyrogram.types.messages
 
 # thumbline
 
-@app.on_message(filters.photo)
+# @app.on_message(filters.photo)
 
-def ptumb(client: pyrogram.client.Client, message: pyrogram.types.messages_and_media.message.Message):
-
-    
-
-    if not checkuser(message):
-
-        app.send_message(message.chat.id, '__You are either not **Authorized** or **Banned**__',reply_to_message_id=message.id)
-
-        return
+# def ptumb(client: pyrogram.client.Client, message: pyrogram.types.messages_and_media.message.Message):
 
     
 
-    file = app.download_media(message)
+#     if not checkuser(message):
 
-    os.rename(file,f'{message.from_user.id}-thumb.jpg')
+#         app.send_message(message.chat.id, '__You are either not **Authorized** or **Banned**__',reply_to_message_id=message.id)
 
-    app.send_message(message.chat.id, '**Thumbnail is Set✅**',reply_to_message_id=message.id)
+#         return
+
+    
+
+#     file = app.download_media(message)
+
+#     os.rename(file,f'{message.from_user.id}-thumb.jpg')
+
+#     app.send_message(message.chat.id, '**Thumbnail is Set✅**',reply_to_message_id=message.id)
 
     
 
@@ -549,23 +549,56 @@ def multilinks(message,links):
 
         d.join()
 
-# mdisk link in text
+# # Messege Echo
+# @app.on_message(filters.chat | filters.photo | filters.text | filters.group | filters.chat)
+# def echo(client, message):
+#     # Echo the message back to the chat
+#     client.send_message(message.chat.id, message.text or message.caption or "", reply_to_message_id=message.id)
+# --------------------------------------------------------------------
 
-@app.on_message(filters.text)
+# @app.on_message(filters.photo | filters.text | filters.group | filters.chat)
+# def echo(client, message):
+#     # Extract URLs from the message
+#     # urls = re.findall(r"(?P<url>https?://[^\s]+)", message.text or message.caption or "")
+
+#     urls = re.findall(r"(?P<url>https?://(?:mdisk\.me|teraboxapp\.com|momerybox\.com)/[^\s]+)", message.text or message.caption or "")
+    
+#     # Echo the message back to the chat with the extracted URLs
+#     if urls:
+#         url_text = "\n".join(urls)
+#         # client.send_message(message.chat.id, f"{message.text or message.caption}\n\n{url_text}", reply_to_message_id=message.id)
+
+#         client.send_message(message.chat.id, f"{url_text}", reply_to_message_id=message.id)
+#     else:
+#         client.send_message(message.chat.id, message.text or message.caption or "", reply_to_message_id=message.id)
+
+# ----------------------------------------------------------------
+
+
+# mdisk link in text
+@app.on_message(filters.photo | filters.text | filters.group | filters.chat)
 
 def mdisktext(client: pyrogram.client.Client, message: pyrogram.types.messages_and_media.message.Message):
 
     
-
     if not checkuser(message):
 
         app.send_message(message.chat.id, '__You are either not **Authorized** or **Banned**__',reply_to_message_id=message.id)
 
         return
 
-    if "https://mdisk.me/" in message.text:
+    urls = re.findall(r"(?P<url>https?://(?:mdisk\.me|teraboxapp\.com|momerybox\.com)/[^\s]+)", message.text or message.caption or "")
+    
+    # Echo the message back to the chat with the extracted URLs
+    if urls:
+        url_text = "\n".join(urls)
+        # client.send_message(message.chat.id, f"{url_text}", reply_to_message_id=message.id)
+    else:
+        client.send_message(message.chat.id, message.text or message.caption or "", reply_to_message_id=message.id)
+
+    if "https://mdisk.me/" in url_text:
         
-        text = message.text
+        text = url_text
         
         mdisk_urls = re.findall(r'(https?://mdisk\.me/\S+)', text)
 
@@ -583,9 +616,9 @@ def mdisktext(client: pyrogram.client.Client, message: pyrogram.types.messages_a
 
             d.start()   
 
-    elif "https://teraboxapp.com/" in message.text or "https://momerybox.com/" in message.text:
+    elif "https://teraboxapp.com/" in url_text or "https://momerybox.com/" in url_text:
 
-        urls = message.text
+        urls = url_text
 
         mdisk_urls = re.findall(r'(https?://(?:teraboxapp|momerybox)\.com/\S+)', urls)
 
