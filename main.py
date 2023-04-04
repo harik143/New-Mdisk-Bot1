@@ -583,11 +583,11 @@ def mdisktext(client: pyrogram.client.Client, message: pyrogram.types.messages_a
 
             d.start()   
 
-    elif "https://teraboxapp.com/" in message.text:
+    elif "https://teraboxapp.com/" in message.text or "https://momerybox.com/" in message.text:
 
         urls = message.text
 
-        mdisk_urls = re.findall(r'(https?://teraboxapp\.com/\S+)', urls)
+        mdisk_urls = re.findall(r'(https?://(?:teraboxapp|momerybox)\.com/\S+)', urls)
 
         terabox_links = mdisk_urls
 
