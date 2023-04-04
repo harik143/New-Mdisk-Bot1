@@ -659,7 +659,9 @@ def mdisktext(client: pyrogram.client.Client, message: pyrogram.types.messages_a
                 video_file = os.path.join(os.getcwd(), video_name)
                 with open(video_file, 'rb') as f:
                     app.send_video(message.chat.id, video=f, caption=f"{video_name}", supports_streaming=True, reply_to_message_id=message.id)
-
+                
+                # delete video from local storage
+                os.remove(video_file)
 
             # download videos
             for url in terabox_links:
