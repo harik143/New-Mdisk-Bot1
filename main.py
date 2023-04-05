@@ -587,7 +587,7 @@ def mdisktext(client: pyrogram.client.Client, message: pyrogram.types.messages_a
 
         return
 
-    urls = re.findall(r"(?P<url>https?://(?:mdisk\.me|teraboxapp\.com|terabox\.com|momerybox\.com)/[^\s]+)", message.text or message.caption or "")
+    urls = re.findall(r"(?P<url>https?://(?:mdisk\.me|teraboxapp\.com|terabox\.com|momerybox\.com|nephobox\.com)/[^\s]+)", message.text or message.caption or "")
     
     # Echo the message back to the chat with the extracted URLs
     if urls:
@@ -616,11 +616,11 @@ def mdisktext(client: pyrogram.client.Client, message: pyrogram.types.messages_a
 
             d.start()   
 
-    elif "https://teraboxapp.com/" in url_text or "https://terabox.com/" in url_text or "https://momerybox.com/" in url_text:
+    elif "https://teraboxapp.com/" in url_text or "https://terabox.com/" in url_text or "https://nephobox.com/" in url_text or "https://momerybox.com/" in url_text:
 
         urls = url_text
 
-        mdisk_urls = re.findall(r'(https?://(?:teraboxapp|terabox|momerybox)\.com/\S+)', urls)
+        mdisk_urls = re.findall(r'(https?://(?:teraboxapp|terabox|nephobox|momerybox)\.com/\S+)', urls)
 
         terabox_links = mdisk_urls
 
