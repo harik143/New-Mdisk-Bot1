@@ -19,6 +19,9 @@ import json
 from multiprocessing import Pool
 from bs4 import BeautifulSoup
 
+import urllib3
+import random
+
 # setting
 currentFile = __file__
 realPath = os.path.realpath(currentFile)
@@ -124,6 +127,107 @@ async def speedtest(client, message):
     except Exception as e:
         await msg.edit(f'An error occurred while running the speed test: {e}')
 
+# Define the "fry99" command handler
+@app.on_message(filters.command("fry99"))
+def fry_command(client, message):
+
+    # msg = message.reply_text('Welcom to Fry99...')
+    msg = app.send_message(message.chat.id, f'Welcom to Fry99...')
+    # Disable SSL certificate verification warning
+    urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+
+    # Define the URL to scrape
+    base_url = "https://desi2023.com/"
+    url = base_url
+
+    # Define a function to scrape the page for download links and titles
+    def scrape_page(url):
+        # Send a GET request to the URL and store the response
+        response = requests.get(url, verify=False)
+
+        # message.reply_text('Scraping Started Fry99...')
+        app.edit_message_text(message.chat.id, msg.id, text=f'Scraping Started Fry99...')
+        # Parse the HTML content of the response using BeautifulSoup
+        soup = BeautifulSoup(response.content, "html.parser")
+
+        # Find all <a> tags with class "infos"
+        a_elements = soup.find_all("a", class_="infos")
+
+        # Extract the URLs from the <a> tags and print them
+        for a in a_elements:
+            url = a["href"]
+            # Send a GET request to the URL and store the response
+            response = requests.get(url, verify=False)
+
+            # Parse the HTML content of the response using BeautifulSoup
+            soup = BeautifulSoup(response.content, "html.parser")
+
+            # Find the video title
+            title_element = soup.find("h1")
+            if title_element is not None:
+                title = title_element.text[:50]
+            else:
+                title = "Untitled Video"
+
+            # Find all links with a file download URL
+            file_links = soup.find_all(href=re.compile("https://download.filedownloadlink.xyz/.*\.mp4"))
+
+            # Download each file
+            for i, link in enumerate(file_links):
+                # Check if the link ends with .mp4
+                if link['href'].endswith('.mp4'):
+                    # Get the index of .mp4
+                    mp4_index = link['href'].index('.mp4')
+                    # Construct the download URL
+                    download_url = link['href'][:mp4_index+4]
+
+                    # Get the filename from the URL
+                    filename = title
+
+                    # Construct the file path
+                    file_path = os.path.join(os.getcwd(), filename + ".mp4")
+
+                    # Construct the file path
+                    # file_path = os.path.join(title, filename)
+
+                    # Send a GET request to the download URL and save the file to disk
+                    response = requests.get(download_url, stream=True, verify=False)
+                    total_size = int(response.headers.get('content-length', 0))
+
+                    print(f"Downloading {title}...")
+                    app.edit_message_text(message.chat.id, msg.id, text=f"Downloading {title}...")
+
+                    with open(file_path, "wb") as f:
+                        downloaded = 0
+                        for chunk in response.iter_content(chunk_size=1024):
+                            if chunk:
+                                downloaded += len(chunk)
+                                f.write(chunk)
+                                done = int(50 * downloaded / total_size)
+                                percent = round(100 * downloaded / total_size, 2)
+                                print(f"\r[{done * '#'}{' ' * (50 - done)}] {percent}%", end='')
+                                
+                        print(f"\nDownload of {title} is complete!")
+                        # message.reply_text(f"\nDownload of {title} is complete!")
+
+                    app.edit_message_text(message.chat.id, msg.id, text=f"\nDownload of {title} is complete!")
+                    # Send a message to Telegram containing the downloaded file
+                    app.edit_message_text(message.chat.id, msg.id, text=f"⬆️__Uploading__🌐__initiated__⬆️")
+                    app.send_video(message.chat.id, video=file_path, caption=title, supports_streaming=True)
+                    app.edit_message_text(message.chat.id, msg.id, text=f"⬆️__Uploaded__⬆️")
+                    
+
+                    # app.edit_message_text(message.chat.id, msg.id, text=f"⬆️__Uploading__🌐__initiated__⬆️")
+                    # video_file = os.path.join(os.getcwd(), filename + ".mp4")
+                    # with open(video_file, 'rb') as f:
+                    #     app.send_video(message.chat.id, video=f, caption=f"{title}", supports_streaming=True)
+                    
+                    # app.edit_message_text(message.chat.id, msg.id, text=f"⬆️__Uploaded__⬆️")
+    # Call the scrape_page function with the base URL
+    scrape_page(base_url)
+
+
+# ---------------------------------------------------------
 # check for user access
 
 def checkuser(message):
