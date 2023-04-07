@@ -131,16 +131,40 @@ async def speedtest(client, message):
 @app.on_message(filters.command("fry99"))
 def fry_command(client, message):
 
-    # msg = message.reply_text('Welcom to Fry99...')
-    msg = app.send_message(message.chat.id, f'Welcom to Fry99...')
-    # Disable SSL certificate verification warning
-    urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+    # Create buttons for selecting "fry99" or "search" options
+    buttons = InlineKeyboardMarkup(
+        [
+            [InlineKeyboardButton("Fry99", callback_data="fry99"), InlineKeyboardButton("Search", callback_data="search")]
+        ]
+    )
+
+    # Send a message with the buttons to the user
+    msg = app.send_message(message.chat.id, "Please select an option:", reply_markup=buttons)
+
     # Define the URL to scrape
     base_url = "https://desi2023.com/"
     url = base_url
 
+    # Ask the user whether to scrape "fry99" or search for a keyword
+    @app.on_callback_query()
+    def select_option(client, callback_query):
+        option = callback_query.data
+        if option == "fry99":
+            url = base_url
+            scrape_page(url, message.chat.id)
+            message.reply_text(f'Url 1 : {url}')
+        elif option == "search":
+            app.send_message(callback_query.message.chat.id, "Enter search query:")
+            @app.on_message(filters.text)
+            def search_keyword(client, search_message):
+                search_input = search_message.text
+                url = f"{base_url}?search&s={search_input}"
+                scrape_page(url, message.chat.id)
+                message.reply_text(f'Url 2 : {url}')
+
     # Define a function to scrape the page for download links and titles
-    def scrape_page(url):
+    def scrape_page(url, chat_id):
+        message.reply_text(f'Url 3 : {url}')
         # Send a GET request to the URL and store the response
         response = requests.get(url, verify=False)
 
@@ -220,7 +244,7 @@ def fry_command(client, message):
             else:
                 break
 
-    scrape_page(base_url)
+    # scrape_page(base_url)
 
 
 # ---------------------------------------------------------
