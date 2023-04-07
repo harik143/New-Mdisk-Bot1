@@ -141,6 +141,9 @@ def fry_command(client, message):
     # Send a message with the buttons to the user
     msg = app.send_message(message.chat.id, "Please select an option:", reply_markup=buttons)
 
+    # Disable SSL certificate verification warning
+    # urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+
     # Define the URL to scrape
     base_url = "https://desi2023.com/"
     url = base_url
@@ -165,6 +168,10 @@ def fry_command(client, message):
     # Define a function to scrape the page for download links and titles
     def scrape_page(url, chat_id):
         message.reply_text(f'Url 3 : {url}')
+
+        # Disable SSL certificate verification warning
+        urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+        
         # Send a GET request to the URL and store the response
         response = requests.get(url, verify=False)
 
@@ -699,141 +706,141 @@ def multilinks(message,links):
 # ----------------------------------------------------------------
 
 
-# mdisk link in text
-@app.on_message(filters.photo | filters.text | filters.group | filters.chat)
+# # mdisk link in text
+# @app.on_message(filters.photo | filters.text | filters.group | filters.chat)
 
-def mdisktext(client: pyrogram.client.Client, message: pyrogram.types.messages_and_media.message.Message):
+# def mdisktext(client: pyrogram.client.Client, message: pyrogram.types.messages_and_media.message.Message):
 
     
-    if not checkuser(message):
+#     if not checkuser(message):
 
-        app.send_message(message.chat.id, '__You are either not **Authorized** or **Banned**__',reply_to_message_id=message.id)
+#         app.send_message(message.chat.id, '__You are either not **Authorized** or **Banned**__',reply_to_message_id=message.id)
 
-        return
+#         return
 
-    urls = re.findall(r"(?P<url>https?://(?:mdisk\.me|teraboxapp\.com|terabox\.com|momerybox\.com|nephobox\.com)/[^\s]+)", message.text or message.caption or "")
+#     urls = re.findall(r"(?P<url>https?://(?:mdisk\.me|teraboxapp\.com|terabox\.com|momerybox\.com|nephobox\.com)/[^\s]+)", message.text or message.caption or "")
     
-    # Echo the message back to the chat with the extracted URLs
-    if urls:
-        url_text = "\n".join(urls)
-        # client.send_message(message.chat.id, f"{url_text}", reply_to_message_id=message.id)
-    else:
-        client.send_message(message.chat.id, message.text or message.caption or "", reply_to_message_id=message.id)
+#     # Echo the message back to the chat with the extracted URLs
+#     if urls:
+#         url_text = "\n".join(urls)
+#         # client.send_message(message.chat.id, f"{url_text}", reply_to_message_id=message.id)
+#     else:
+#         client.send_message(message.chat.id, message.text or message.caption or "", reply_to_message_id=message.id)
 
-    if "https://mdisk.me/" in url_text:
+#     if "https://mdisk.me/" in url_text:
         
-        text = url_text
+#         text = url_text
         
-        mdisk_urls = re.findall(r'(https?://mdisk\.me/\S+)', text)
+#         mdisk_urls = re.findall(r'(https?://mdisk\.me/\S+)', text)
 
-        links = mdisk_urls
+#         links = mdisk_urls
 
-        if len(links) == 1:
+#         if len(links) == 1:
 
-            d = threading.Thread(target=lambda:down(message,links[0]),daemon=True)
+#             d = threading.Thread(target=lambda:down(message,links[0]),daemon=True)
 
-            d.start()
+#             d.start()
 
-        else:
+#         else:
 
-            d = threading.Thread(target=lambda:multilinks(message,links),daemon=True)
+#             d = threading.Thread(target=lambda:multilinks(message,links),daemon=True)
 
-            d.start()   
+#             d.start()   
 
-    elif "https://teraboxapp.com/" in url_text or "https://terabox.com/" in url_text or "https://nephobox.com/" in url_text or "https://momerybox.com/" in url_text:
+#     elif "https://teraboxapp.com/" in url_text or "https://terabox.com/" in url_text or "https://nephobox.com/" in url_text or "https://momerybox.com/" in url_text:
 
-        urls = url_text
+#         urls = url_text
 
-        mdisk_urls = re.findall(r'(https?://(?:teraboxapp|terabox|nephobox|momerybox)\.com/\S+)', urls)
+#         mdisk_urls = re.findall(r'(https?://(?:teraboxapp|terabox|nephobox|momerybox)\.com/\S+)', urls)
 
-        terabox_links = mdisk_urls
+#         terabox_links = mdisk_urls
 
-        if terabox_links:
-            # app.send_message(message.chat.id, f"Extracted link: {terabox_links[0]}")
+#         if terabox_links:
+#             # app.send_message(message.chat.id, f"Extracted link: {terabox_links[0]}")
 
-            cookies_file = dirPath + '/cookies.txt'
+#             cookies_file = dirPath + '/cookies.txt'
 
-            def download_video(url):
-                redirects = requests.get(url=url)
-                inp = redirects.url
-                dom = inp.split("/")[2]
-                fxl = inp.split("=")
-                key = fxl[-1]
+#             def download_video(url):
+#                 redirects = requests.get(url=url)
+#                 inp = redirects.url
+#                 dom = inp.split("/")[2]
+#                 fxl = inp.split("=")
+#                 key = fxl[-1]
 
-                # Extract the video name from the Terabox URL
-                response = requests.get(url)
-                soup = BeautifulSoup(response.content, "html.parser")
-                video_name = soup.title.text.replace(" - Share Files Online & Send Larges Files with TeraBox", "")
-                print(video_name)
-                # app.send_message(message.chat.id, f"Video Name: {video_name}")
-                # msg = app.send_message(message.chat.id, f"Video Name: {video_name}"reply_to_message_id=message.id)
+#                 # Extract the video name from the Terabox URL
+#                 response = requests.get(url)
+#                 soup = BeautifulSoup(response.content, "html.parser")
+#                 video_name = soup.title.text.replace(" - Share Files Online & Send Larges Files with TeraBox", "")
+#                 print(video_name)
+#                 # app.send_message(message.chat.id, f"Video Name: {video_name}")
+#                 # msg = app.send_message(message.chat.id, f"Video Name: {video_name}"reply_to_message_id=message.id)
 
-                msg = app.send_message(message.chat.id, f"Video Name: {video_name}", reply_to_message_id=message.id)
+#                 msg = app.send_message(message.chat.id, f"Video Name: {video_name}", reply_to_message_id=message.id)
 
 
-                URL = f'https://{dom}/share/list?app_id=250528&shorturl={key}&root=1'
+#                 URL = f'https://{dom}/share/list?app_id=250528&shorturl={key}&root=1'
 
-                header = {
-                    'Accept': 'application/json, text/plain, */*',
-                    'Accept-Language': 'en-US,en;q=0.5',
-                    'Accept-Encoding': 'gzip, deflate, br',
-                    'Referer': f'https://{dom}/sharing/link?surl={key}',
-                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/93.0.4577.82 Safari/537.36'
-                }
+#                 header = {
+#                     'Accept': 'application/json, text/plain, */*',
+#                     'Accept-Language': 'en-US,en;q=0.5',
+#                     'Accept-Encoding': 'gzip, deflate, br',
+#                     'Referer': f'https://{dom}/sharing/link?surl={key}',
+#                     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/93.0.4577.82 Safari/537.36'
+#                 }
 
-                cookies_file = dirPath + '/cookies.txt'
+#                 cookies_file = dirPath + '/cookies.txt'
 
-                def parseCookieFile(cookiefile):
-                    cookies = {}
-                    with open(cookies_file, 'r') as fp:
-                        for line in fp:
-                            if not re.match(r'^\#', line):
-                                lineFields = line.strip().split('\t')
-                                cookies[lineFields[5]] = lineFields[6]
-                    return cookies
+#                 def parseCookieFile(cookiefile):
+#                     cookies = {}
+#                     with open(cookies_file, 'r') as fp:
+#                         for line in fp:
+#                             if not re.match(r'^\#', line):
+#                                 lineFields = line.strip().split('\t')
+#                                 cookies[lineFields[5]] = lineFields[6]
+#                     return cookies
 
-                cookies = parseCookieFile('cookies.txt')
-                print('Cookies Parsed')
+#                 cookies = parseCookieFile('cookies.txt')
+#                 print('Cookies Parsed')
 
-                app.edit_message_text(message.chat.id, msg.id, text=f'**Cookies Parsed...**')
+#                 app.edit_message_text(message.chat.id, msg.id, text=f'**Cookies Parsed...**')
 
-                resp = requests.get(url=URL, headers=header, cookies=cookies).json()['list'][0]['dlink']
+#                 resp = requests.get(url=URL, headers=header, cookies=cookies).json()['list'][0]['dlink']
 
-                # downloading the file
-                app.edit_message_text(message.chat.id, msg.id, text=f'🌀__Downloading__🌐__Initiated__🌀')
-                if iswin:
-                    subprocess.run([aria2c, '--console-log-level=warn', '-x 16', '-s 16', '-j 16', '-k 1M', '--file-allocation=none', '--summary-interval=10', resp])
-                else:
-                    subprocess.run([aria2c, '--console-log-level=warn', '-x', '16', '-s', '16', '-j', '16', '-k', '1M', '--file-allocation=none', '--summary-interval=10', resp])
-                app.edit_message_text(message.chat.id, msg.id, text=f'🌀__Downloaded__🌀')
+#                 # downloading the file
+#                 app.edit_message_text(message.chat.id, msg.id, text=f'🌀__Downloading__🌐__Initiated__🌀')
+#                 if iswin:
+#                     subprocess.run([aria2c, '--console-log-level=warn', '-x 16', '-s 16', '-j 16', '-k 1M', '--file-allocation=none', '--summary-interval=10', resp])
+#                 else:
+#                     subprocess.run([aria2c, '--console-log-level=warn', '-x', '16', '-s', '16', '-j', '16', '-k', '1M', '--file-allocation=none', '--summary-interval=10', resp])
+#                 app.edit_message_text(message.chat.id, msg.id, text=f'🌀__Downloaded__🌀')
                 
-                # # send video to Telegram
-                # video_file = os.path.join(os.getcwd(), video_name)
-                # app.send_video(message.chat.id, video=open(video_file, 'rb'), caption=f"{video_name}", reply_to_message_id=message.id)
+#                 # # send video to Telegram
+#                 # video_file = os.path.join(os.getcwd(), video_name)
+#                 # app.send_video(message.chat.id, video=open(video_file, 'rb'), caption=f"{video_name}", reply_to_message_id=message.id)
 
-                # send video to Telegram
-                app.edit_message_text(message.chat.id, msg.id, text=f"⬆️__Uploading__🌐__initiated__⬆️")
-                video_file = os.path.join(os.getcwd(), video_name)
-                with open(video_file, 'rb') as f:
-                    app.send_video(message.chat.id, video=f, caption=f"{video_name}", supports_streaming=True, reply_to_message_id=message.id)
+#                 # send video to Telegram
+#                 app.edit_message_text(message.chat.id, msg.id, text=f"⬆️__Uploading__🌐__initiated__⬆️")
+#                 video_file = os.path.join(os.getcwd(), video_name)
+#                 with open(video_file, 'rb') as f:
+#                     app.send_video(message.chat.id, video=f, caption=f"{video_name}", supports_streaming=True, reply_to_message_id=message.id)
                 
-                app.edit_message_text(message.chat.id, msg.id, text=f"⬆️__Uploaded__⬆️")
-                # delete video from local storage
-                os.remove(video_name)
-                # Sleep
-                # time.sleep(1)
-                app.delete_message(message.chat.id, msg.message_id)
+#                 app.edit_message_text(message.chat.id, msg.id, text=f"⬆️__Uploaded__⬆️")
+#                 # delete video from local storage
+#                 os.remove(video_name)
+#                 # Sleep
+#                 # time.sleep(1)
+#                 app.delete_message(message.chat.id, msg.message_id)
 
-            # download videos
-            for url in terabox_links:
-                download_video(url)
-        else:
-            app.send_message(message.chat.id, '**Send only __Terabox Link__ Bruh>>>>.........**',reply_to_message_id=message.id)
+#             # download videos
+#             for url in terabox_links:
+#                 download_video(url)
+#         else:
+#             app.send_message(message.chat.id, '**Send only __Terabox Link__ Bruh>>>>.........**',reply_to_message_id=message.id)
 
 
-    else:
+#     else:
 
-        app.send_message(message.chat.id, '**Send only __MDisk Link__ Bruh>>>>.........**',reply_to_message_id=message.id)
+#         app.send_message(message.chat.id, '**Send only __MDisk Link__ Bruh>>>>.........**',reply_to_message_id=message.id)
 
 # polling
 
