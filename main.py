@@ -135,7 +135,6 @@ def fry_command(client, message):
     msg = app.send_message(message.chat.id, f'Welcom to Fry99...')
     # Disable SSL certificate verification warning
     urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
-
     # Define the URL to scrape
     base_url = "https://desi2023.com/"
     url = base_url
@@ -149,10 +148,9 @@ def fry_command(client, message):
         app.edit_message_text(message.chat.id, msg.id, text=f'Scraping Started Fry99...')
         # Parse the HTML content of the response using BeautifulSoup
         soup = BeautifulSoup(response.content, "html.parser")
-
         # Find all <a> tags with class "infos"
         a_elements = soup.find_all("a", class_="infos")
-
+        
         # Extract the URLs from the <a> tags and print them
         for a in a_elements:
             url = a["href"]
@@ -180,16 +178,10 @@ def fry_command(client, message):
                     mp4_index = link['href'].index('.mp4')
                     # Construct the download URL
                     download_url = link['href'][:mp4_index+4]
-
                     # Get the filename from the URL
                     filename = title
-
                     # Construct the file path
                     file_path = os.path.join(os.getcwd(), filename + ".mp4")
-
-                    # Construct the file path
-                    # file_path = os.path.join(title, filename)
-
                     # Send a GET request to the download URL and save the file to disk
                     response = requests.get(download_url, stream=True, verify=False)
                     total_size = int(response.headers.get('content-length', 0))
@@ -215,15 +207,19 @@ def fry_command(client, message):
                     app.edit_message_text(message.chat.id, msg.id, text=f"⬆️__Uploading__🌐__initiated__⬆️")
                     app.send_video(message.chat.id, video=file_path, caption=title, supports_streaming=True)
                     app.edit_message_text(message.chat.id, msg.id, text=f"⬆️__Uploaded__⬆️")
-                    
 
-                    # app.edit_message_text(message.chat.id, msg.id, text=f"⬆️__Uploading__🌐__initiated__⬆️")
-                    # video_file = os.path.join(os.getcwd(), filename + ".mp4")
-                    # with open(video_file, 'rb') as f:
-                    #     app.send_video(message.chat.id, video=f, caption=f"{title}", supports_streaming=True)
-                    
-                    # app.edit_message_text(message.chat.id, msg.id, text=f"⬆️__Uploaded__⬆️")
-    # Call the scrape_page function with the base URL
+        # Prompt the user to navigate to the next page and continue scraping
+        page_number = 2
+        while True:
+            app.edit_message_text(message.chat.id, msg.id, text="Do you want to navigate to the next page? (y/n)")
+            user_input = app.get_updates()[-1].message.text.lower()
+            if user_input == "y":
+                url = base_url + f"page/{page_number}/"
+                scrape_page(url)
+                page_number += 1
+            else:
+                break
+
     scrape_page(base_url)
 
 
