@@ -131,6 +131,18 @@ async def speedtest(client, message):
 @app.on_message(filters.command("fry99"))
 def fry_command(client, message):
 
+    # Define a function to create "next" button
+    def next_button(callback_data=None):
+        # Create buttons for navigating to the next page
+        buttons = InlineKeyboardMarkup(
+            [[InlineKeyboardButton("Next", callback_data="next")]]
+        )
+        return buttons
+
+    # Define initial current page
+    current_page = 2
+    search_input = None
+
     # Create buttons for selecting "fry99" or "search" options
     buttons = InlineKeyboardMarkup(
         [
@@ -141,29 +153,8 @@ def fry_command(client, message):
     # Send a message with the buttons to the user
     msg = app.send_message(message.chat.id, "Please select an option:", reply_markup=buttons)
 
-    # Disable SSL certificate verification warning
-    # urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
-
     # Define the URL to scrape
     base_url = "https://desi2023.com/"
-    url = base_url
-
-    # Ask the user whether to scrape "fry99" or search for a keyword
-    @app.on_callback_query()
-    def select_option(client, callback_query):
-        option = callback_query.data
-        if option == "fry99":
-            url = base_url
-            scrape_page(url, message.chat.id)
-            message.reply_text(f'Url 1 : {url}')
-        elif option == "search":
-            app.send_message(callback_query.message.chat.id, "Enter search query:")
-            @app.on_message(filters.text)
-            def search_keyword(client, search_message):
-                search_input = search_message.text
-                url = f"{base_url}?search&s={search_input}"
-                scrape_page(url, message.chat.id)
-                message.reply_text(f'Url 2 : {url}')
 
     # Define a function to scrape the page for download links and titles
     def scrape_page(url, chat_id):
@@ -218,8 +209,10 @@ def fry_command(client, message):
                     total_size = int(response.headers.get('content-length', 0))
 
                     print(f"Downloading {title}...")
-                    app.edit_message_text(message.chat.id, msg.id, text=f"Downloading {title}...")
-
+                    # app.edit_message_text(message.chat.id, msg.id, text=f"Downloading {title}...")
+                    message.reply_text(f"Download URL: {link['href']}")
+                    msgg = app.send_message(message.chat.id, f"Downloading {title}...")
+                  
                     with open(file_path, "wb") as f:
                         downloaded = 0
                         for chunk in response.iter_content(chunk_size=1024):
@@ -233,23 +226,49 @@ def fry_command(client, message):
                         print(f"\nDownload of {title} is complete!")
                         # message.reply_text(f"\nDownload of {title} is complete!")
 
-                    app.edit_message_text(message.chat.id, msg.id, text=f"\nDownload of {title} is complete!")
+                    app.edit_message_text(message.chat.id, msgg.id, text=f"\nDownload of {title} is complete!")
                     # Send a message to Telegram containing the downloaded file
-                    app.edit_message_text(message.chat.id, msg.id, text=f"⬆️__Uploading__🌐__initiated__⬆️")
+                    app.edit_message_text(message.chat.id, msgg.id, text=f"⬆️__Uploading__🌐__initiated__⬆️")
                     app.send_video(message.chat.id, video=file_path, caption=title, supports_streaming=True)
-                    app.edit_message_text(message.chat.id, msg.id, text=f"⬆️__Uploaded__⬆️")
+                    app.edit_message_text(message.chat.id, msgg.id, text=f"⬆️__Uploaded__⬆️")
+                    
 
-        # Prompt the user to navigate to the next page and continue scraping
-        page_number = 2
-        while True:
-            app.edit_message_text(message.chat.id, msg.id, text="Do you want to navigate to the next page? (y/n)")
-            user_input = app.get_updates()[-1].message.text.lower()
-            if user_input == "y":
-                url = base_url + f"page/{page_number}/"
-                scrape_page(url)
-                page_number += 1
+
+    # Define a callback function to handle button clicks
+    @app.on_callback_query()
+    def select_option(client, callback_query):
+        nonlocal current_page
+        option = callback_query.data
+        if option == "fry99":
+            url = base_url
+            message.reply_text(f'Url 1 {url}')
+            scrape_page(url, message.chat.id)
+            buttons = next_button()
+            app.send_message(callback_query.message.chat.id, "Please select an option:", reply_markup=buttons)
+            # message.reply_text(f'Next Url 1 {url}')
+        elif option == "search":
+            app.send_message(callback_query.message.chat.id, "Enter search query:")
+            @app.on_message(filters.text)
+            def search_keyword(client, search_message):
+                nonlocal search_input
+                search_input = search_message.text
+                url = f"{base_url}?search&s={search_input}"
+                message.reply_text(f'Url 2 {url}')
+                scrape_page(url, message.chat.id)
+                buttons = next_button()
+                app.send_message(callback_query.message.chat.id, "Please select an option:", reply_markup=buttons)
+                # message.reply_text(f'Next Url 2 {url}')
+        elif option == "next":
+            # Use the current page number to construct the URL
+            if search_input:
+                url = f"{base_url}?search&s={search_input}&paged={current_page}"
             else:
-                break
+                url = base_url + f"page/{current_page}/"
+            message.reply_text(f'Url 3 {url}')
+            scrape_page(url, message.chat.id)
+            current_page += 1 # Increment the current page number
+            buttons = next_button()
+            app.send_message(callback_query.message.chat.id, "Please select an option:", reply_markup=buttons)
 
     # scrape_page(base_url)
 
