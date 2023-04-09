@@ -93,6 +93,8 @@ def help(client: pyrogram.client.Client, message: pyrogram.types.messages_and_me
 
 **/help** - this message
 
+**/fry99** - Scraping
+
 **/speedtest** - speedtest
 
 **/mdisk mdisklink** - usage
