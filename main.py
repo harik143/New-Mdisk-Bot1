@@ -141,6 +141,7 @@ def fry_command(client, message):
 
     # Define initial current page
     current_page = 2
+    current_page_search = 2
     search_input = None
 
     # Create buttons for selecting "fry99" or "search" options
@@ -157,28 +158,26 @@ def fry_command(client, message):
     base_url = "https://desi2023.com/"
 
     # Define a function to scrape the page for download links and titles
-    def scrape_page(url, chat_id):
-        message.reply_text(f'Url 3 : {url}')
-
+    def scrape_page(url):
+        message.reply_text(f'Scraping: {url}')
         # Disable SSL certificate verification warning
         urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
-        
+
         # Send a GET request to the URL and store the response
         response = requests.get(url, verify=False)
-
-        # message.reply_text('Scraping Started Fry99...')
-        app.edit_message_text(message.chat.id, msg.id, text=f'Scraping Started Fry99...')
+        # Send Messege
+        msgg = message.reply_text(f'Scraping Started Fry99...')
         # Parse the HTML content of the response using BeautifulSoup
         soup = BeautifulSoup(response.content, "html.parser")
+
         # Find all <a> tags with class "infos"
         a_elements = soup.find_all("a", class_="infos")
-        
+
         # Extract the URLs from the <a> tags and print them
         for a in a_elements:
             url = a["href"]
             # Send a GET request to the URL and store the response
             response = requests.get(url, verify=False)
-
             # Parse the HTML content of the response using BeautifulSoup
             soup = BeautifulSoup(response.content, "html.parser")
 
@@ -191,7 +190,6 @@ def fry_command(client, message):
 
             # Find all links with a file download URL
             file_links = soup.find_all(href=re.compile("https://download.filedownloadlink.xyz/.*\.mp4"))
-
             # Download each file
             for i, link in enumerate(file_links):
                 # Check if the link ends with .mp4
@@ -209,10 +207,13 @@ def fry_command(client, message):
                     total_size = int(response.headers.get('content-length', 0))
 
                     print(f"Downloading {title}...")
-                    # app.edit_message_text(message.chat.id, msg.id, text=f"Downloading {title}...")
-                    message.reply_text(f"Download URL: {link['href']}")
-                    msgg = app.send_message(message.chat.id, f"Downloading {title}...")
-                  
+                    download_url = link['href']
+                    thumbnail_url = download_url.replace("https://download.filedownloadlink.xyz/", "https://static.filedownloadlink.xyz/thumb/").replace(".mp4", ".jpg")
+                    print(f"Thumbnail URL: {thumbnail_url}\nTitle: {title}\nDownload URL: {download_url}")
+                    url = message.reply_text(f"{thumbnail_url}\n")
+                    app.edit_message_text(message.chat.id, url.id, text=f"📥 {title} 📥\n\n{thumbnail_url}\n")
+                    # message.reply_text(f"Title: {title}\n{thumbnail_url}\nDownload URL: {download_url}")
+
                     with open(file_path, "wb") as f:
                         downloaded = 0
                         for chunk in response.iter_content(chunk_size=1024):
@@ -225,24 +226,36 @@ def fry_command(client, message):
                                 
                         print(f"\nDownload of {title} is complete!")
                         # message.reply_text(f"\nDownload of {title} is complete!")
-
-                    app.edit_message_text(message.chat.id, msgg.id, text=f"\nDownload of {title} is complete!")
-                    # Send a message to Telegram containing the downloaded file
-                    app.edit_message_text(message.chat.id, msgg.id, text=f"⬆️__Uploading__🌐__initiated__⬆️")
-                    app.send_video(message.chat.id, video=file_path, caption=title, supports_streaming=True)
-                    app.edit_message_text(message.chat.id, msgg.id, text=f"⬆️__Uploaded__⬆️")
                     
+                    # Download the thumbnail image
+                    thumbnail_response = requests.get(thumbnail_url)
+                    thumbnail_file_path = os.path.join(os.getcwd(), f"{title}.jpg")
+                    with open(thumbnail_file_path, "wb") as f:
+                        f.write(thumbnail_response.content)
+
+                    app.edit_message_text(message.chat.id, url.id, text=f"📥💾 {title} 📥💾 is complete!\n\n{thumbnail_url}\n")
+                    # Send a message to Telegram containing the downloaded file
+                    app.edit_message_text(message.chat.id, url.id, text=f"🚀__ Uploading __🎬__ initiated __🚀\n\n{thumbnail_url}\n")
+                    app.send_video(message.chat.id, video=file_path, caption=title, supports_streaming=True, thumb=thumbnail_file_path)
+                    app.edit_message_text(message.chat.id, url.id, text=f"✅__ Uploaded __✅")
+                    # app.send_video(message.chat.id, video=file_path, caption=title, supports_streaming=True, thumb=thumbnail_url)
+
+                    # delete video from local storage
+                    os.remove(file_path) # Remove Video
+                    os.remove(thumbnail_file_path) # Remove Thumbnail
+                    # Sleep
+                    time.sleep(1)
 
 
     # Define a callback function to handle button clicks
     @app.on_callback_query()
     def select_option(client, callback_query):
-        nonlocal current_page
+        nonlocal current_page, current_page_search
         option = callback_query.data
         if option == "fry99":
             url = base_url
-            message.reply_text(f'Url 1 {url}')
-            scrape_page(url, message.chat.id)
+            # message.reply_text(f'Url 1 {url}')
+            scrape_page(url)
             buttons = next_button()
             app.send_message(callback_query.message.chat.id, "Please select an option:", reply_markup=buttons)
             # message.reply_text(f'Next Url 1 {url}')
@@ -253,23 +266,23 @@ def fry_command(client, message):
                 nonlocal search_input
                 search_input = search_message.text
                 url = f"{base_url}?search&s={search_input}"
-                message.reply_text(f'Url 2 {url}')
-                scrape_page(url, message.chat.id)
+                # message.reply_text(f'Url 2 {url}')
+                scrape_page(url)
                 buttons = next_button()
                 app.send_message(callback_query.message.chat.id, "Please select an option:", reply_markup=buttons)
                 # message.reply_text(f'Next Url 2 {url}')
         elif option == "next":
             # Use the current page number to construct the URL
             if search_input:
-                url = f"{base_url}?search&s={search_input}&paged={current_page}"
+                url = f"{base_url}?search&s={search_input}&paged={current_page_search}"
+                current_page_search += 1 # Increment the current page number
             else:
                 url = base_url + f"page/{current_page}/"
-            message.reply_text(f'Url 3 {url}')
-            scrape_page(url, message.chat.id)
+            # message.reply_text(f'Url 3 {url}')
+            scrape_page(url)
             current_page += 1 # Increment the current page number
             buttons = next_button()
             app.send_message(callback_query.message.chat.id, "Please select an option:", reply_markup=buttons)
-
     # scrape_page(base_url)
 
 
