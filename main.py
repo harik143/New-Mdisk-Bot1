@@ -345,7 +345,7 @@ def down(message,link):
 
                 thumb,duration,width,height = mediainfo.allinfo(ele,thumbfile)
 
-                app.send_video(message.chat.id, video=ele, caption=f"{partt}**{filename}\n By ©️ @movie_time_botonly**", thumb=thumb, duration=duration, height=height, width=width, reply_to_message_id=message.id, progress=progress, progress_args=[message])
+                app.send_video(message.chat.id, video=ele, caption=f"{partt}**{filename}\n**", thumb=thumb, duration=duration, height=height, width=width, reply_to_message_id=message.id, progress=progress, progress_args=[message])
 
                 if "-thumb.jpg" not in thumb:
 
@@ -353,7 +353,7 @@ def down(message,link):
 
         else:
 
-                app.send_video(message.chat.id, document=ele, caption=f"{partt}**{filename}\n By ©️ @movie_time_botonly**", thumb=thumbfile, force_document=True, reply_to_message_id=message.id, progress=progress, progress_args=[message])
+                app.send_video(message.chat.id, document=ele, caption=f"{partt}**{filename}\n**", thumb=thumbfile, force_document=True, reply_to_message_id=message.id, progress=progress, progress_args=[message])
 
         
 
@@ -584,46 +584,98 @@ def multilinks(message,links):
 #     else:
 #         client.send_message(message.chat.id, message.text or message.caption or "", reply_to_message_id=message.id)
 
-# ----------------------------------------------------------------------------------------------------------
+# -------------------------------------------------------------------------------------------------------
+
 # Define a function to scrape the page for download links and titles
 def scrape_page(url, message):
-    message.reply_text(f'Url 4 {url}')
-        # Disable SSL certificate verification warning
+    message.reply_text(f'Scraping: {url}')
+    # Disable SSL certificate verification warning
     urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
-        # Send a GET request to the URL and store the response
+    # Send a GET request to the URL and store the response
     response = requests.get(url, verify=False)
-
-        # Parse the HTML content of the response using BeautifulSoup
+    # Send Messege
+    msgg = message.reply_text(f'Scraping Started Fry99...')
+    # Parse the HTML content of the response using BeautifulSoup
     soup = BeautifulSoup(response.content, "html.parser")
 
-        # Find all <a> tags with class "infos"
+    # Find all <a> tags with class "infos"
     a_elements = soup.find_all("a", class_="infos")
 
-        # Extract the URLs from the <a> tags and print them
+    # Extract the URLs from the <a> tags and print them
     for a in a_elements:
         url = a["href"]
-            # Send a GET request to the URL and store the response
+        # Send a GET request to the URL and store the response
         response = requests.get(url, verify=False)
-
-            # Parse the HTML content of the response using BeautifulSoup
+        # Parse the HTML content of the response using BeautifulSoup
         soup = BeautifulSoup(response.content, "html.parser")
 
-            # Find the video title
+        # Find the video title
         title_element = soup.find("h1")
         if title_element is not None:
             title = title_element.text[:50]
         else:
             title = "Untitled Video"
 
-
-            # Find all links with a file download URL
+        # Find all links with a file download URL
         file_links = soup.find_all(href=re.compile("https://download.filedownloadlink.xyz/.*\.mp4"))
+        # Download each file
+        for i, link in enumerate(file_links):
+            # Check if the link ends with .mp4
+            if link['href'].endswith('.mp4'):
+                # Get the index of .mp4
+                mp4_index = link['href'].index('.mp4')
+                # Construct the download URL
+                download_url = link['href'][:mp4_index+4]
+                # Get the filename from the URL
+                filename = title
+                # Construct the file path
+                file_path = os.path.join(os.getcwd(), filename + ".mp4")
+                # Send a GET request to the download URL and save the file to disk
+                response = requests.get(download_url, stream=True, verify=False)
+                total_size = int(response.headers.get('content-length', 0))
 
-            # Print the video title and file download URLs
-        for link in file_links:
-            print(f"Title: {title}\nDownload URL: {link['href']}")
-            message.reply_text(f"Title: {title}\nDownload URL: {link['href']}")
+                print(f"Downloading {title}...")
+                download_url = link['href']
+                thumbnail_url = download_url.replace("https://download.filedownloadlink.xyz/", "https://static.filedownloadlink.xyz/thumb/").replace(".mp4", ".jpg")
+                print(f"Thumbnail URL: {thumbnail_url}\nTitle: {title}\nDownload URL: {download_url}")
+                url = message.reply_text(f"{thumbnail_url}\n")
+                app.edit_message_text(message.chat.id, url.id, text=f"📥 {title} 📥\n\n{thumbnail_url}\n")
+                # message.reply_text(f"Title: {title}\n{thumbnail_url}\nDownload URL: {download_url}")
+
+                with open(file_path, "wb") as f:
+                    downloaded = 0
+                    for chunk in response.iter_content(chunk_size=1024):
+                        if chunk:
+                            downloaded += len(chunk)
+                            f.write(chunk)
+                            done = int(50 * downloaded / total_size)
+                            percent = round(100 * downloaded / total_size, 2)
+                            print(f"\r[{done * '#'}{' ' * (50 - done)}] {percent}%", end='')
+                                
+                    print(f"\nDownload of {title} is complete!")
+                    # message.reply_text(f"\nDownload of {title} is complete!")
+                    
+                # Download the thumbnail image
+                thumbnail_response = requests.get(thumbnail_url)
+                thumbnail_file_path = os.path.join(os.getcwd(), f"{title}.jpg")
+                with open(thumbnail_file_path, "wb") as f:
+                    f.write(thumbnail_response.content)
+
+                app.edit_message_text(message.chat.id, url.id, text=f"📥💾 {title} 📥💾 is complete!\n\n{thumbnail_url}\n")
+                # Send a message to Telegram containing the downloaded file
+                app.edit_message_text(message.chat.id, url.id, text=f"🚀__ Uploading __🎬__ initiated __🚀\n\n{thumbnail_url}\n")
+                app.send_video(message.chat.id, video=file_path, caption=title, supports_streaming=True, thumb=thumbnail_file_path)
+                app.edit_message_text(message.chat.id, url.id, text=f"✅__ Uploaded __✅")
+                # app.send_video(message.chat.id, video=file_path, caption=title, supports_streaming=True, thumb=thumbnail_url)
+
+                # delete video from local storage
+                os.remove(file_path) # Remove Video
+                os.remove(thumbnail_file_path) # Remove Thumbnail
+                # Sleep
+                time.sleep(1)
+
+# --------------------------------------------------------------------------------------------------------------------------
 
 # Define the URL to scrape
 base_url = "https://desi2023.com/"
