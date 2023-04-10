@@ -742,15 +742,28 @@ def next_button(callback_data=None):
     )
     return buttons
 
-# @app.on_message(filters.text & filters.private)
-def search_keyword(client, message):
-    global search_input
-    search_input = message.text
-    url = f"{base_url}?search&s={search_input}"
-    message.reply_text(f'Url 2 {url}')
-    scrape_page(url, message)
-    buttons = next_button()
-    app.send_message(message.chat.id, "Please select an option:", reply_markup=buttons)
+def search_and_display(client, message):
+    global search_input, current_page_search
+    if message.text == "/search":
+        message.reply_text("Welcome! Please select an option: /search or /next")
+    elif message.text == "/next":
+        if search_input:
+            url = f"{base_url}?search&s={search_input}&paged={current_page_search}"
+            current_page_search += 1
+            message.reply_text(f'Url: {url}')
+            scrape_page(url, message)
+            message.reply_text("Please select an option: **/next**")
+        else:
+            message.reply_text("Please enter a search keyword first.")
+    elif message.text == "/reset":
+        current_page_search = 2
+        message.reply_text("Current Page Number Reseted")
+    else:
+        search_input = message.text
+        url = f"{base_url}?search&s={search_input}"
+        message.reply_text(f'Url: {url}')
+        scrape_page(url, message)
+        message.reply_text("Please select an option: **/next**")
 
 # Define the "fry99" command handler
 @app.on_message(filters.command("fry99"))
@@ -794,25 +807,25 @@ def fry_command(client, message, search_input=None):
             buttons = next_button()
             app.send_message(callback_query.message.chat.id, "Please select an option:", reply_markup=buttons)
             # message.reply_text(f'Next Url 1 {url}')
+            
         elif option == "search":
-            app.send_message(callback_query.message.chat.id, "Enter search query:")
-            # search_keyword(client, message, search_input=message.text)
+            message.reply_text("Enter search query:")
+            if search_input:
+                search_input = message.text
+                url = f"{base_url}?search&s={search_input}"
+                message.reply_text(f'Url: {url}')
+                scrape_page(url, message)
+                message.reply_text("Please select an option: **/next**")
 
         elif option == "next":
             # Use the current page number to construct the URL
-            nonlocal current_page, current_page_search, search_input
-            search_input = message.text
-            if search_input:
-                url = f"{base_url}?search&s={search_input}&paged={current_page_search}"
-                current_page_search += 1 # Increment the current page number
-            else:
-                url = base_url + f"page/{current_page}/"
+            url = base_url + f"page/{current_page}/"
             message.reply_text(f'Url 3 {url}')
             scrape_page(url, message)
             current_page += 1 # Increment the current page number
             buttons = next_button()
             app.send_message(message.chat.id, "Please select an option:", reply_markup=buttons)
-
+            
 
 # mdisk link in text
 @app.on_message(filters.photo | filters.text | filters.group | filters.chat)
@@ -850,12 +863,12 @@ def mdisktext(client: pyrogram.client.Client, message: pyrogram.types.messages_a
                 d.start()  
     elif "/fry99" in urls:
         print(f"urls fry {message.text}")
+        message.reply_text("Please select an option: /search or /next")
         fry_command(client, message)
     else:
         print(f"urls 2 {message.text}")
-        print(f"urls 3 {message.caption}")
-        print(f"Url 2 {search_input}")
-        search_keyword(client, message)
+        search_and_display(client, message)
+        # search_keyword(client, message)
 
 # polling
 
