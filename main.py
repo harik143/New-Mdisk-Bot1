@@ -95,6 +95,12 @@ def help(client: pyrogram.client.Client, message: pyrogram.types.messages_and_me
 
 **/fry99** - Scraping
 
+**/Search** - Search
+
+**/next** - Next Page
+
+**/reset** - Reset Page Number
+
 **/speedtest** - speedtest
 
 **/mdisk mdisklink** - usage
@@ -578,113 +584,6 @@ def multilinks(message,links):
 #     else:
 #         client.send_message(message.chat.id, message.text or message.caption or "", reply_to_message_id=message.id)
 
-# ----------------------------------------------------------------
-# # Define the "fry99" command handler
-# @app.on_message(filters.command("fry99"))
-# def fry_command(client, message):
-
-#     # Define a function to create "next" button
-#     def next_button(callback_data=None):
-#         # Create buttons for navigating to the next page
-#         buttons = InlineKeyboardMarkup(
-#             [[InlineKeyboardButton("Next", callback_data="next")]]
-#         )
-#         return buttons
-
-#     # Define initial current page
-#     current_page = 2
-#     search_input = None
-
-#     # Create buttons for selecting "fry99" or "search" options
-#     buttons = InlineKeyboardMarkup(
-#         [
-#             [InlineKeyboardButton("Fry99", callback_data="fry99"), InlineKeyboardButton("Search", callback_data="search")]
-#         ]
-#     )
-
-#     # Send a message with the buttons to the user
-#     msg = app.send_message(message.chat.id, "Please select an option:", reply_markup=buttons)
-
-#     # Define the URL to scrape
-#     base_url = "https://desi2023.com/"
-
-#     # Define a function to scrape the page for download links and titles
-#     def scrape_page(url):
-#         message.reply_text(f'Url 4 {url}')
-#         # Disable SSL certificate verification warning
-#         urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
-
-#         # Send a GET request to the URL and store the response
-#         response = requests.get(url, verify=False)
-
-#         # Parse the HTML content of the response using BeautifulSoup
-#         soup = BeautifulSoup(response.content, "html.parser")
-
-#         # Find all <a> tags with class "infos"
-#         a_elements = soup.find_all("a", class_="infos")
-
-#         # Extract the URLs from the <a> tags and print them
-#         for a in a_elements:
-#             url = a["href"]
-#             # Send a GET request to the URL and store the response
-#             response = requests.get(url, verify=False)
-
-#             # Parse the HTML content of the response using BeautifulSoup
-#             soup = BeautifulSoup(response.content, "html.parser")
-
-#             # Find the video title
-#             title_element = soup.find("h1")
-#             if title_element is not None:
-#                 title = title_element.text[:50]
-#             else:
-#                 title = "Untitled Video"
-
-
-#             # Find all links with a file download URL
-#             file_links = soup.find_all(href=re.compile("https://download.filedownloadlink.xyz/.*\.mp4"))
-
-#             # Print the video title and file download URLs
-#             for link in file_links:
-#                 print(f"Title: {title}\nDownload URL: {link['href']}")
-#                 message.reply_text(f"Title: {title}\nDownload URL: {link['href']}")
-
-    # # Define a function to handle search queries
-    # @app.on_message(filters.text & filters.private)
-    # def search_keyword(client, message):
-    #     nonlocal search_input
-    #     search_input = message.text
-    #     url = f"{base_url}?search&s={search_input}"
-    #     message.reply_text(f'Url 2 {url}')
-    #     scrape_page(url)
-    #     buttons = next_button()
-    #     app.send_message(message.chat.id, "Please select an option:", reply_markup=buttons)
-
-    # # Define a callback function to handle button clicks
-    # @app.on_callback_query()
-    # def select_option(client, callback_query):
-    #     nonlocal current_page
-    #     option = callback_query.data
-    #     if option == "fry99":
-    #         url = base_url
-    #         message.reply_text(f'Url 1 {url}')
-    #         scrape_page(url)
-    #         buttons = next_button()
-    #         app.send_message(callback_query.message.chat.id, "Please select an option:", reply_markup=buttons)
-    #         # message.reply_text(f'Next Url 1 {url}')
-    #     elif option == "search":
-    #         app.send_message(callback_query.message.chat.id, "Enter search query:")
-
-    #     elif option == "next":
-    #         # Use the current page number to construct the URL
-    #         if search_input:
-    #             url = f"{base_url}?search&s={search_input}&paged={current_page}"
-    #         else:
-    #             url = base_url + f"page/{current_page}/"
-    #         message.reply_text(f'Url 3 {url}')
-    #         scrape_page(url)
-    #         current_page += 1 # Increment the current page number
-    #         buttons = next_button()
-    #         app.send_message(callback_query.message.chat.id, "Please select an option:", reply_markup=buttons)
 # ----------------------------------------------------------------------------------------------------------
 # Define a function to scrape the page for download links and titles
 def scrape_page(url, message):
@@ -843,7 +742,7 @@ def mdisktext(client: pyrogram.client.Client, message: pyrogram.types.messages_a
             client.send_message(message.chat.id, message.text or message.caption or "", reply_to_message_id=message.id)
 
         if "https://mdisk.me/" in url_text:
-            
+        
             text = url_text
             
             mdisk_urls = re.findall(r'(https?://mdisk\.me/\S+)', text)
@@ -860,7 +759,97 @@ def mdisktext(client: pyrogram.client.Client, message: pyrogram.types.messages_a
 
                 d = threading.Thread(target=lambda:multilinks(message,links),daemon=True)
 
-                d.start()  
+                d.start()   
+
+        elif "https://teraboxapp.com/" in url_text or "https://terabox.com/" in url_text or "https://nephobox.com/" in url_text or "https://momerybox.com/" in url_text:
+
+            urls = url_text
+
+            mdisk_urls = re.findall(r'(https?://(?:teraboxapp|terabox|nephobox|momerybox)\.com/\S+)', urls)
+
+            terabox_links = mdisk_urls
+
+            if terabox_links:
+                # app.send_message(message.chat.id, f"Extracted link: {terabox_links[0]}")
+
+                cookies_file = dirPath + '/cookies.txt'
+
+                def download_video(url):
+                    redirects = requests.get(url=url)
+                    inp = redirects.url
+                    dom = inp.split("/")[2]
+                    fxl = inp.split("=")
+                    key = fxl[-1]
+
+                    # Extract the video name from the Terabox URL
+                    response = requests.get(url)
+                    soup = BeautifulSoup(response.content, "html.parser")
+                    video_name = soup.title.text.replace(" - Share Files Online & Send Larges Files with TeraBox", "")
+                    print(video_name)
+                    # app.send_message(message.chat.id, f"Video Name: {video_name}")
+                    # msg = app.send_message(message.chat.id, f"Video Name: {video_name}"reply_to_message_id=message.id)
+
+                    msg = app.send_message(message.chat.id, f"Video Name: {video_name}", reply_to_message_id=message.id)
+
+
+                    URL = f'https://{dom}/share/list?app_id=250528&shorturl={key}&root=1'
+
+                    header = {
+                        'Accept': 'application/json, text/plain, */*',
+                        'Accept-Language': 'en-US,en;q=0.5',
+                        'Accept-Encoding': 'gzip, deflate, br',
+                        'Referer': f'https://{dom}/sharing/link?surl={key}',
+                        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/93.0.4577.82 Safari/537.36'
+                    }
+
+                    cookies_file = dirPath + '/cookies.txt'
+
+                    def parseCookieFile(cookiefile):
+                        cookies = {}
+                        with open(cookies_file, 'r') as fp:
+                            for line in fp:
+                                if not re.match(r'^\#', line):
+                                    lineFields = line.strip().split('\t')
+                                    cookies[lineFields[5]] = lineFields[6]
+                        return cookies
+
+                    cookies = parseCookieFile('cookies.txt')
+                    print('Cookies Parsed')
+
+                    app.edit_message_text(message.chat.id, msg.id, text=f'**Cookies Parsed...**')
+
+                    resp = requests.get(url=URL, headers=header, cookies=cookies).json()['list'][0]['dlink']
+
+                    # downloading the file
+                    app.edit_message_text(message.chat.id, msg.id, text=f'🌀__Downloading__🌐__Initiated__🌀')
+                    if iswin:
+                        subprocess.run([aria2c, '--console-log-level=warn', '-x 16', '-s 16', '-j 16', '-k 1M', '--file-allocation=none', '--summary-interval=10', resp])
+                    else:
+                        subprocess.run([aria2c, '--console-log-level=warn', '-x', '16', '-s', '16', '-j', '16', '-k', '1M', '--file-allocation=none', '--summary-interval=10', resp])
+                    app.edit_message_text(message.chat.id, msg.id, text=f'🌀__Downloaded__🌀')
+                    
+                    # # send video to Telegram
+                    # video_file = os.path.join(os.getcwd(), video_name)
+                    # app.send_video(message.chat.id, video=open(video_file, 'rb'), caption=f"{video_name}", reply_to_message_id=message.id)
+
+                    # send video to Telegram
+                    app.edit_message_text(message.chat.id, msg.id, text=f"⬆️__Uploading__🌐__initiated__⬆️")
+                    video_file = os.path.join(os.getcwd(), video_name)
+                    with open(video_file, 'rb') as f:
+                        app.send_video(message.chat.id, video=f, caption=f"{video_name}", supports_streaming=True, reply_to_message_id=message.id)
+                    
+                    app.edit_message_text(message.chat.id, msg.id, text=f"⬆️__Uploaded__⬆️")
+                    # delete video from local storage
+                    os.remove(video_name)
+                    # Sleep
+                    # time.sleep(1)
+                    app.delete_message(message.chat.id, msg.message_id)
+
+                # download videos
+                for url in terabox_links:
+                    download_video(url)
+
+# -------------------------------------------------------------------------------------------------------------
     elif "/fry99" in urls:
         print(f"urls fry {message.text}")
         message.reply_text("Please select an option: /search or /next")
