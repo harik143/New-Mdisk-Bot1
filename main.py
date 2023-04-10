@@ -779,7 +779,7 @@ def fry_command(client, message, search_input=None):
             
 
 # mdisk link in text
-@app.on_message(filters.photo | filters.text | filters.group | filters.chat)
+@app.on_message(filters.photo | filters.text | filters.group | filters.chat | filters.private | filters.channel)
 
 def mdisktext(client: pyrogram.client.Client, message: pyrogram.types.messages_and_media.message.Message):
 
