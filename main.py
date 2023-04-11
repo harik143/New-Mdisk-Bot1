@@ -353,8 +353,13 @@ def down(message,link):
 
         else:
 
-                app.send_video(message.chat.id, document=ele, caption=f"{partt}**{filename}\n**", thumb=thumbfile, force_document=True, reply_to_message_id=message.id, progress=progress, progress_args=[message])
+                thumb,duration,width,height = mediainfo.allinfo(ele,thumbfile)
 
+                app.send_video(message.chat.id, video=ele, caption=f"{partt}**{filename}\n**", thumb=thumb, duration=duration, height=height, width=width, reply_to_message_id=message.id, progress=progress, progress_args=[message])
+
+                if "-thumb.jpg" not in thumb:
+
+                    os.remove(thumb)
         
 
         # deleting uploaded file
@@ -801,6 +806,11 @@ def mdisktext(client: pyrogram.client.Client, message: pyrogram.types.messages_a
 
             links = mdisk_urls
 
+            # Sleep
+            message.reply_text("Please Wait 3 Seconds Im Sleeping ")
+            time.sleep(3)
+            # message.reply_text("Im Running ")
+
             if len(links) == 1:
 
                 d = threading.Thread(target=lambda:down(message,links[0]),daemon=True)
@@ -808,6 +818,8 @@ def mdisktext(client: pyrogram.client.Client, message: pyrogram.types.messages_a
                 d.start()
 
             else:
+                # Sleep
+                time.sleep(3)
 
                 d = threading.Thread(target=lambda:multilinks(message,links),daemon=True)
 
@@ -820,6 +832,12 @@ def mdisktext(client: pyrogram.client.Client, message: pyrogram.types.messages_a
             mdisk_urls = re.findall(r'(https?://(?:teraboxapp|terabox|nephobox|momerybox)\.com/\S+)', urls)
 
             terabox_links = mdisk_urls
+            
+            # Sleep
+            # message.reply_text("Please Wait 2 Seconds Im Sleeping ")
+            msg = app.send_message(message.chat.id, f"Please Wait 3 Seconds Im Sleeping ", reply_to_message_id=message.id)
+            time.sleep(3)
+            # message.reply_text("Im Running ")
 
             if terabox_links:
                 # app.send_message(message.chat.id, f"Extracted link: {terabox_links[0]}")
@@ -841,7 +859,8 @@ def mdisktext(client: pyrogram.client.Client, message: pyrogram.types.messages_a
                     # app.send_message(message.chat.id, f"Video Name: {video_name}")
                     # msg = app.send_message(message.chat.id, f"Video Name: {video_name}"reply_to_message_id=message.id)
 
-                    msg = app.send_message(message.chat.id, f"Video Name: {video_name}", reply_to_message_id=message.id)
+                    # msg = app.send_message(message.chat.id, f"Video Name: {video_name}", reply_to_message_id=message.id)
+                    app.edit_message_text(message.chat.id, msg.id, text=f"Video Name: {video_name}")
 
 
                     URL = f'https://{dom}/share/list?app_id=250528&shorturl={key}&root=1'
@@ -872,6 +891,9 @@ def mdisktext(client: pyrogram.client.Client, message: pyrogram.types.messages_a
 
                     resp = requests.get(url=URL, headers=header, cookies=cookies).json()['list'][0]['dlink']
 
+                    # Sleep
+                    time.sleep(3)
+
                     # downloading the file
                     app.edit_message_text(message.chat.id, msg.id, text=f'🌀__Downloading__🌐__Initiated__🌀')
                     if iswin:
@@ -879,10 +901,9 @@ def mdisktext(client: pyrogram.client.Client, message: pyrogram.types.messages_a
                     else:
                         subprocess.run([aria2c, '--console-log-level=warn', '-x', '16', '-s', '16', '-j', '16', '-k', '1M', '--file-allocation=none', '--summary-interval=10', resp])
                     app.edit_message_text(message.chat.id, msg.id, text=f'🌀__Downloaded__🌀')
-                    
-                    # # send video to Telegram
-                    # video_file = os.path.join(os.getcwd(), video_name)
-                    # app.send_video(message.chat.id, video=open(video_file, 'rb'), caption=f"{video_name}", reply_to_message_id=message.id)
+                   
+                    # Sleep
+                    time.sleep(3)
 
                     # send video to Telegram
                     app.edit_message_text(message.chat.id, msg.id, text=f"⬆️__Uploading__🌐__initiated__⬆️")
@@ -895,7 +916,7 @@ def mdisktext(client: pyrogram.client.Client, message: pyrogram.types.messages_a
                     os.remove(video_name)
                     # Sleep
                     # time.sleep(1)
-                    app.delete_message(message.chat.id, msg.message_id)
+                    # app.delete_message(message.chat.id, msg.message_id)
 
                 # download videos
                 for url in terabox_links:
