@@ -590,6 +590,112 @@ def multilinks(message,links):
 #         client.send_message(message.chat.id, message.text or message.caption or "", reply_to_message_id=message.id)
 
 # -------------------------------------------------------------------------------------------------------
+# Define a function to scrape the page for download links and titles
+def scrape_desi49(url, message):
+    message.reply_text(f'Scraping: {url}')
+    # Disable SSL certificate verification warning
+    urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+
+    # Send a GET request to the URL and store the response
+    response = requests.get(url, verify=False)
+    # Send Messege
+    msgd = message.reply_text(f'Scraping Started Desi49...')
+    # Parse the HTML content of the response using BeautifulSoup
+    soup = BeautifulSoup(response.content, "html.parser")
+
+    # Find all 'li' elements with class 'thumi'
+    thumi_list = soup.find_all("li", class_="thumi")
+
+    # Loop through each 'li' element and extract the desired information
+    for thumi in thumi_list:
+        # Extract the 'href' attribute from the first 'a' tag within the 'li' element
+        href = thumi.find("a")["href"]
+
+        # Extract the title from the 'a' tag with class 'title'
+        title = thumi.find("a", class_="title").get_text()
+
+        # Extract the thumbnail URL from the 'img' tag within the 'span' tag with class 'thumbimg' if it exists
+        thumbnail_span = thumi.find("span", class_="thumbimg")
+        thumbnail_url = thumbnail_span.find("img")["src"] if thumbnail_span else None
+
+        if thumbnail_url:
+            # Print the extracted information
+            video_url = href
+            print("Video_Url:", video_url)
+            print("Title:", title)
+            print("Thumbnail URL:", thumbnail_url if thumbnail_url else "N/A")
+
+            # Disable SSL certificate verification warning
+            urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+
+            # Send a GET request to the extracted URL and store the response
+            download_response = requests.get(href, verify=False)
+
+            # Parse the HTML content of the download response using BeautifulSoup
+            download_soup = BeautifulSoup(download_response.content, "html.parser")
+
+            # Extract the download link from the 'source' tag within the 'video' tag
+            download_link = download_soup.find("video").find("source")["src"]
+
+            # Filter the download link to only include URLs ending with '*.mp4'
+            download_link = re.findall(r"(.*\.mp4)", download_link)[0] if download_link else None
+
+            if download_link:
+                # Print the extracted download URL
+                print("Download URL:", download_link)
+
+                # Get the filename from the URL
+                filename = title
+                # Construct the file path
+                file_path = os.path.join(os.getcwd(), filename + ".mp4")
+
+                # Send a GET request to the download URL and download the video
+                video_response = requests.get(download_link, stream=True, verify=False)
+                total_size = int(video_response.headers.get('content-length', 0)) # Fix: Get content-length from headers
+                print(f"Downloading {title}...")
+
+                urld = message.reply_text(f"{thumbnail_url}\n")
+                app.edit_message_text(message.chat.id, urld.id, text=f"✅ Downloading ✅\n\n📥 {title} 📥\n\n{thumbnail_url}\n\n{download_link}")
+                # message.reply_text(f"Download URL: {download_link}")
+
+                with open(file_path, "wb") as video_file:
+                    downloaded = 0
+                    for chunk in video_response.iter_content(chunk_size=1024):
+                        if chunk:
+                            downloaded += len(chunk)
+                            video_file.write(chunk)
+                            done = int(50 * downloaded / total_size)
+                            percent = round(100 * downloaded / total_size, 2)
+                            print(f"\r[{done * '#'}{' ' * (50 - done)}] {percent}%", end='')
+                                
+                    print(f"\nDownload of {title} is complete!")
+                    app.edit_message_text(message.chat.id, urld.id, text=f"✅ Downloaded Successfully! ✅\n\n📥 {title} 📥\n\n{thumbnail_url}\n\n{download_link}")
+
+                print("Video downloaded successfully!")
+                print("------")
+
+                # Download the thumbnail image
+                thumbnail_response = requests.get(thumbnail_url)
+                thumbnail_file_path = os.path.join(os.getcwd(), f"{title}.jpg")
+                with open(thumbnail_file_path, "wb") as f:
+                    f.write(thumbnail_response.content)
+
+                app.edit_message_text(message.chat.id, urld.id, text=f"📥💾 {title} 📥💾 is complete!\n\n{thumbnail_url}\n")
+                # Send a message to Telegram containing the downloaded file
+                app.edit_message_text(message.chat.id, urld.id, text=f"🚀__ Uploading __🎬__ initiated __🚀\n\n{thumbnail_url}\n")
+                app.send_video(message.chat.id, video=file_path, caption=title, supports_streaming=True, thumb=thumbnail_file_path)
+                app.edit_message_text(message.chat.id, urld.id, text=f"✅__ Uploaded __✅")
+                # app.send_video(message.chat.id, video=file_path, caption=title, supports_streaming=True, thumb=thumbnail_url)
+
+                # delete video from local storage
+                os.remove(file_path) # Remove Video
+                os.remove(thumbnail_file_path) # Remove Thumbnail
+                # Sleep
+                time.sleep(1)
+            else:
+                print("No download link found.")
+                pass
+
 
 # Define a function to scrape the page for download links and titles
 def scrape_page(url, message):
@@ -645,7 +751,9 @@ def scrape_page(url, message):
                 thumbnail_url = download_url.replace("https://download.filedownloadlink.xyz/", "https://static.filedownloadlink.xyz/thumb/").replace(".mp4", ".jpg")
                 print(f"Thumbnail URL: {thumbnail_url}\nTitle: {title}\nDownload URL: {download_url}")
                 url = message.reply_text(f"{thumbnail_url}\n")
-                app.edit_message_text(message.chat.id, url.id, text=f"📥 {title} 📥\n\n{thumbnail_url}\n")
+                app.edit_message_text(message.chat.id, url.id, text=f"✅ Downloading ✅\n\n📥 {title} 📥\n\n{thumbnail_url}\n\n{download_url}")
+
+                # app.edit_message_text(message.chat.id, url.id, text=f"📥 {title} 📥\n\n{thumbnail_url}\n")
                 # message.reply_text(f"Title: {title}\n{thumbnail_url}\nDownload URL: {download_url}")
 
                 with open(file_path, "wb") as f:
@@ -684,6 +792,8 @@ def scrape_page(url, message):
 
 # Define the URL to scrape
 base_url = "https://desi2023.com/"
+desi49_url = "https://masahub.net/"
+new_base_url = "https://masahub.net/"
 
 # Define initial current page
 current_page = 2
@@ -698,28 +808,84 @@ def next_button(callback_data=None):
     )
     return buttons
 
+# def search_and_display(client, message):
+#     global search_input, current_page_search
+#     if message.text == "/search":
+#         message.reply_text("Welcome! Please select an option: /search or /next")
+#     elif message.text == "/next":
+#         if search_input:
+#             url = f"{base_url}?search&s={search_input}&paged={current_page_search}"
+#             current_page_search += 1
+#             message.reply_text(f'Url: {url}')
+#             scrape_page(url, message)
+#             message.reply_text("Please select an option: **/next**")
+#         else:
+#             message.reply_text("Please enter a search keyword first.")
+#     elif message.text == "/reset":
+#         current_page_search = 2
+#         message.reply_text("Current Page Number Reseted")
+#     else:
+#         search_input = message.text
+#         url = f"{base_url}?search&s={search_input}"
+#         message.reply_text(f'Url: {url}')
+#         scrape_page(url, message)
+#         message.reply_text("Please select an option: **/next**")
+
+# ----------------Working Code For Search , Next---------------------
 def search_and_display(client, message):
-    global search_input, current_page_search
+    global search_input, current_page_search, base_url, current_page, new_base_url
+    if message.text == "/fry999":
+        new_base_url = "https://desi2023.com/"
+
+    elif message.text == "/desi49":
+        new_base_url = "https://masahub.net/"
+
     if message.text == "/search":
-        message.reply_text("Welcome! Please select an option: /search or /next")
+        message.reply_text("Welcome! Please select an option: \n1. /desi49 \n2. /fry999")
     elif message.text == "/next":
-        if search_input:
-            url = f"{base_url}?search&s={search_input}&paged={current_page_search}"
-            current_page_search += 1
-            message.reply_text(f'Url: {url}')
-            scrape_page(url, message)
-            message.reply_text("Please select an option: **/next**")
-        else:
-            message.reply_text("Please enter a search keyword first.")
+            if search_input:
+                url = f"{new_base_url}?search&s={search_input}&paged={current_page_search}"
+                current_page_search += 1
+                # message.reply_text(f'Url: {url}')
+                if new_base_url == "https://desi2023.com/":
+                    scrape_page(url, message)
+                elif new_base_url == "https://masahub.net/":
+                    scrape_desi49(url, message)
+                message.reply_text("Please select an option: /next")
+            else:
+                url = base_url + f"page/{current_page}/"
+                current_page += 1
+                # message.reply_text(f'Url: {url}')
+                if new_base_url == "https://desi2023.com/":
+                    scrape_page(url, message)
+                elif new_base_url == "https://masahub.net/":
+                    scrape_desi49(url, message)
+                message.reply_text("Please select an option: /next")
+
     elif message.text == "/reset":
         current_page_search = 2
         message.reply_text("Current Page Number Reseted")
-    else:
+
+    elif message.text in ["/desi49", "/fry999"]:
+        if message.text == "/desi49":
+            new_base_url = "https://masahub.net/"
+        elif message.text == "/fry999":
+            new_base_url = "https://desi2023.com/"
+        message.reply_text("Please enter your search query:")
+        search_input = ""
+    elif search_input == "":
         search_input = message.text
-        url = f"{base_url}?search&s={search_input}"
-        message.reply_text(f'Url: {url}')
-        scrape_page(url, message)
-        message.reply_text("Please select an option: **/next**")
+        url = f"{new_base_url}?search&s={search_input}"
+        # message.reply_text(f'Url: {url}')
+        if new_base_url == "https://desi2023.com/":
+            scrape_page(url, message)
+        elif new_base_url == "https://masahub.net/":
+            scrape_desi49(url, message)
+        message.reply_text("Please select an option: /next")
+        message.reply_text("If You Want Change select an option: \n1. /desi49 \n2. /fry999")
+    else:
+        pass
+# ----------------------------------
 
 # Define the "fry99" command handler
 @app.on_message(filters.command("fry99"))
@@ -741,7 +907,8 @@ def fry_command(client, message, search_input=None):
     # Create buttons for selecting "fry99" or "search" options
     buttons = InlineKeyboardMarkup(
         [
-            [InlineKeyboardButton("Fry99", callback_data="fry99"), InlineKeyboardButton("Search", callback_data="search")]
+            [InlineKeyboardButton("Fry99", callback_data="fry99"),InlineKeyboardButton("Desi49", callback_data="desi49"), 
+            InlineKeyboardButton("Search", callback_data="search")]
         ]
     )
 
@@ -750,6 +917,7 @@ def fry_command(client, message, search_input=None):
 
     # Define the URL to scrape
     base_url = "https://desi2023.com/"
+    desi49_url = "https://masahub.net/"
 
     # Define a callback function to handle button clicks
     @app.on_callback_query()
@@ -764,14 +932,23 @@ def fry_command(client, message, search_input=None):
             app.send_message(callback_query.message.chat.id, "Please select an option:", reply_markup=buttons)
             # message.reply_text(f'Next Url 1 {url}')
             
+        elif option == "desi49":
+            url = desi49_url
+            message.reply_text(f'Url 1 {url}')
+            scrape_desi49(url, message)
+            # message.reply_text("Please select an option: **/next**")
+            # search_and_display(client, message)
+
         elif option == "search":
-            message.reply_text("Enter search query:")
-            if search_input:
-                search_input = message.text
-                url = f"{base_url}?search&s={search_input}"
-                message.reply_text(f'Url: {url}')
-                scrape_page(url, message)
-                message.reply_text("Please select an option: **/next**")
+            # search_and_display(client, message)
+            message.reply_text("Welcome! Please select an option: \n1. /desi49 \n2. /fry999")
+            # message.reply_text("Enter search query:")
+            # if search_input:
+            #     search_input = message.text
+            #     url = f"{base_url}?search&s={search_input}"
+            #     message.reply_text(f'Url: {url}')
+            #     scrape_page(url, message)
+            #     message.reply_text("Please select an option: **/next**")
 
         elif option == "next":
             # Use the current page number to construct the URL
@@ -900,18 +1077,18 @@ def mdisktext(client: pyrogram.client.Client, message: pyrogram.types.messages_a
                         subprocess.run([aria2c, '--console-log-level=warn', '-x 16', '-s 16', '-j 16', '-k 1M', '--file-allocation=none', '--summary-interval=10', resp])
                     else:
                         subprocess.run([aria2c, '--console-log-level=warn', '-x', '16', '-s', '16', '-j', '16', '-k', '1M', '--file-allocation=none', '--summary-interval=10', resp])
-                    app.edit_message_text(message.chat.id, msg.id, text=f'🌀__Downloaded__🌀')
+                    app.edit_message_text(message.chat.id, msg.id, text=f'✅ __Downloaded__ ✅')
                    
                     # Sleep
                     time.sleep(3)
 
                     # send video to Telegram
-                    app.edit_message_text(message.chat.id, msg.id, text=f"⬆️__Uploading__🌐__initiated__⬆️")
+                    app.edit_message_text(message.chat.id, msg.id, text=f"🚀__ Uploading __🎬__ initiated __🚀")
                     video_file = os.path.join(os.getcwd(), video_name)
                     with open(video_file, 'rb') as f:
                         app.send_video(message.chat.id, video=f, caption=f"{video_name}", supports_streaming=True, reply_to_message_id=message.id)
                     
-                    app.edit_message_text(message.chat.id, msg.id, text=f"⬆️__Uploaded__⬆️")
+                    app.edit_message_text(message.chat.id, msg.id, text=f"✅__ Uploaded __✅")
                     # delete video from local storage
                     os.remove(video_name)
                     # Sleep
@@ -930,8 +1107,6 @@ def mdisktext(client: pyrogram.client.Client, message: pyrogram.types.messages_a
     else:
         print(f"urls 2 {message.text}")
         search_and_display(client, message)
-        # search_keyword(client, message)
 
 # polling
-
 app.run()
