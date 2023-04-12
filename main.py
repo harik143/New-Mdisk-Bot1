@@ -42,7 +42,7 @@ else:
 
 # app
 
-bot_token = os.environ.get("TOKEN", "5982883220:AAG40wETqVkiA1KFTkVdt7qAqziw8yJW3SE") 
+bot_token = os.environ.get("TOKEN", "5982883220:AAHIXfRWiTOJPN_x7ok0VWsqY8UiijwM9GM") 
 
 api_hash = os.environ.get("HASH", "d7720b94d7b075ec7fa414f82f570b22") 
 
