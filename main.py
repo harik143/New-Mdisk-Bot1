@@ -341,11 +341,18 @@ def down(message,link):
 
         # actuall upload
 
+        # Save the photo thumbnail if message has a photo
+        if message.photo:
+            file_path = f"{os.getcwd()}/{filename}.jpg"
+            thumbnail_file = app.download_media(message.photo.file_id, file_name=file_path)
+            print(f"Thumbnail saved to: {thumbnail_file}")
+            app.edit_message_text(message.chat.id, msg.id, text=f"✅ Thumbnail saved 🖼️ ✅")
+
         if info == "V":
 
                 thumb,duration,width,height = mediainfo.allinfo(ele,thumbfile)
 
-                app.send_video(message.chat.id, video=ele, caption=f"{partt}**{filename}\n**", thumb=thumb, duration=duration, height=height, width=width, reply_to_message_id=message.id, progress=progress, progress_args=[message])
+                app.send_video(message.chat.id, video=ele, caption=f"{partt}**{filename}\n**", thumb=thumbnail_file, duration=duration, height=height, width=width, reply_to_message_id=message.id, progress=progress, progress_args=[message])
 
                 if "-thumb.jpg" not in thumb:
 
@@ -355,7 +362,7 @@ def down(message,link):
 
                 thumb,duration,width,height = mediainfo.allinfo(ele,thumbfile)
 
-                app.send_video(message.chat.id, video=ele, caption=f"{partt}**{filename}\n**", thumb=thumb, duration=duration, height=height, width=width, reply_to_message_id=message.id, progress=progress, progress_args=[message])
+                app.send_video(message.chat.id, video=ele, caption=f"{partt}**{filename}\n**", thumb=thumbnail_file, duration=duration, height=height, width=width, reply_to_message_id=message.id, progress=progress, progress_args=[message])
 
                 if "-thumb.jpg" not in thumb:
 
@@ -365,6 +372,7 @@ def down(message,link):
         # deleting uploaded file
 
         os.remove(ele)
+        os.remove(thumbnail_file)
 
         
 
