@@ -960,12 +960,21 @@ def fry_command(client, message, search_input=None):
             app.send_message(message.chat.id, "Please select an option:", reply_markup=buttons)
             
 
+file = ""
+
 # mdisk link in text
 @app.on_message(filters.photo | filters.text | filters.group | filters.chat | filters.private | filters.channel)
 
 def mdisktext(client: pyrogram.client.Client, message: pyrogram.types.messages_and_media.message.Message):
 
+    # # Save the photo thumbnail if message has a photo
+    # if message.photo:
+    #     file_path = f"{os.getcwd()}/thumbnail_file.jpg"
+    #     thumbnail_file = client.download_media(message.photo.file_id, file_name=file_path)
+    #     print(f"Thumbnail saved to: {thumbnail_file}")
+
     urls = re.findall(r"(?P<url>https?://(?:mdisk\.me|teraboxapp\.com|terabox\.com|momerybox\.com|nephobox\.com|link\.getnewlink\.com)/[^\s]+)", message.text or message.caption or "")
+
     if urls:
         print(f"urls 1 {urls}")
         # Echo the message back to the chat with the extracted URLs
@@ -1039,6 +1048,13 @@ def mdisktext(client: pyrogram.client.Client, message: pyrogram.types.messages_a
                     # msg = app.send_message(message.chat.id, f"Video Name: {video_name}", reply_to_message_id=message.id)
                     app.edit_message_text(message.chat.id, msg.id, text=f"Video Name: {video_name}")
 
+                    # Save the photo thumbnail if message has a photo
+                    if message.photo:
+                        file_path = f"{os.getcwd()}/{video_name}.jpg"
+                        thumbnail_file = client.download_media(message.photo.file_id, file_name=file_path)
+                        print(f"Thumbnail saved to: {thumbnail_file}")
+                        app.edit_message_text(message.chat.id, msg.id, text=f"✅ Thumbnail saved 🖼️ ✅")
+
 
                     URL = f'https://{dom}/share/list?app_id=250528&shorturl={key}&root=1'
 
@@ -1086,13 +1102,14 @@ def mdisktext(client: pyrogram.client.Client, message: pyrogram.types.messages_a
                     app.edit_message_text(message.chat.id, msg.id, text=f"🚀__ Uploading __🎬__ initiated __🚀")
                     video_file = os.path.join(os.getcwd(), video_name)
                     with open(video_file, 'rb') as f:
-                        app.send_video(message.chat.id, video=f, caption=f"{video_name}", supports_streaming=True, reply_to_message_id=message.id)
+                        app.send_video(message.chat.id, video=f, caption=f"{video_name}", supports_streaming=True, thumb=thumbnail_file, reply_to_message_id=message.id)
                     
                     app.edit_message_text(message.chat.id, msg.id, text=f"✅__ Uploaded __✅")
                     # delete video from local storage
                     os.remove(video_name)
+                    os.remove(thumbnail_file)
                     # Sleep
-                    # time.sleep(1)
+                    time.sleep(5)
                     # app.delete_message(message.chat.id, msg.message_id)
 
                 # download videos
