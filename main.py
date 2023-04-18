@@ -965,7 +965,7 @@ def fry_command(client, message, search_input=None):
 
 def mdisktext(client: pyrogram.client.Client, message: pyrogram.types.messages_and_media.message.Message):
 
-    urls = re.findall(r"(?P<url>https?://(?:mdisk\.me|teraboxapp\.com|terabox\.com|momerybox\.com|nephobox\.com)/[^\s]+)", message.text or message.caption or "")
+    urls = re.findall(r"(?P<url>https?://(?:mdisk\.me|teraboxapp\.com|terabox\.com|momerybox\.com|nephobox\.com|link\.getnewlink\.com)/[^\s]+)", message.text or message.caption or "")
     if urls:
         print(f"urls 1 {urls}")
         # Echo the message back to the chat with the extracted URLs
@@ -1002,11 +1002,11 @@ def mdisktext(client: pyrogram.client.Client, message: pyrogram.types.messages_a
 
                 d.start()   
 
-        elif "https://teraboxapp.com/" in url_text or "https://terabox.com/" in url_text or "https://nephobox.com/" in url_text or "https://momerybox.com/" in url_text:
+        elif "https://teraboxapp.com/" in url_text or "https://terabox.com/" in url_text or "https://nephobox.com/" in url_text or "https://momerybox.com/" in url_text or "https://link.getnewlink.com/" in url_text :
 
             urls = url_text
 
-            mdisk_urls = re.findall(r'(https?://(?:teraboxapp|terabox|nephobox|momerybox)\.com/\S+)', urls)
+            mdisk_urls = re.findall(r'(https?://(?:teraboxapp|terabox|nephobox|momerybox|link\.getnewlink)\.com/\S+)', urls)
 
             terabox_links = mdisk_urls
             
