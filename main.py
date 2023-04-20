@@ -56,6 +56,11 @@ auth = os.environ.get("AUTH", "5730217267")
 
 ban = os.environ.get("BAN", "")
 
+# Bin Channel Username
+channel_username = "mdiskbin"
+# chat = app.get_chat(channel_username)
+# channel_id = chat.id
+
 # start command
 
 @app.on_message(filters.command(["start"]))
@@ -242,6 +247,11 @@ def progress(current, total, message):
 
 def down(message,link):
 
+    # Bin Channel Username
+    channel_username = "mdiskbin"
+    chat = app.get_chat(channel_username)
+    channel_id = chat.id
+
     # checking link and download with progress thread
 
     msg = app.send_message(message.chat.id, '🌀__Downloading__🌐__Initiated__🌀', reply_to_message_id=message.id)
@@ -353,6 +363,8 @@ def down(message,link):
                 thumb,duration,width,height = mediainfo.allinfo(ele,thumbfile)
 
                 app.send_video(message.chat.id, video=ele, caption=f"{partt}**{filename}\n**", thumb=thumbnail_file, duration=duration, height=height, width=width, reply_to_message_id=message.id, progress=progress, progress_args=[message])
+                # send video to channel
+                app.send_video(chat_id=channel_id, video=ele, caption=f"{partt}**{filename}\n**", thumb=thumbnail_file, duration=duration, height=height, width=width, progress=progress, progress_args=[message])
 
                 if "-thumb.jpg" not in thumb:
 
@@ -363,6 +375,9 @@ def down(message,link):
                 thumb,duration,width,height = mediainfo.allinfo(ele,thumbfile)
 
                 app.send_video(message.chat.id, video=ele, caption=f"{partt}**{filename}\n**", thumb=thumbnail_file, duration=duration, height=height, width=width, reply_to_message_id=message.id, progress=progress, progress_args=[message])
+                # send video to channel
+                app.send_video(chat_id=channel_id, video=ele, caption=f"{partt}**{filename}\n**", thumb=thumbnail_file, duration=duration, height=height, width=width, progress=progress, progress_args=[message])
+
 
                 if "-thumb.jpg" not in thumb:
 
@@ -600,6 +615,12 @@ def multilinks(message,links):
 # -------------------------------------------------------------------------------------------------------
 # Define a function to scrape the page for download links and titles
 def scrape_desi49(url, message):
+
+    # Bin Channel Username
+    channel_username = "mdiskbin"
+    chat = app.get_chat(channel_username)
+    channel_id = chat.id
+
     message.reply_text(f'Scraping: {url}')
     # Disable SSL certificate verification warning
     urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
@@ -692,6 +713,10 @@ def scrape_desi49(url, message):
                 # Send a message to Telegram containing the downloaded file
                 app.edit_message_text(message.chat.id, urld.id, text=f"🚀__ Uploading __🎬__ initiated __🚀\n\n{thumbnail_url}\n")
                 app.send_video(message.chat.id, video=file_path, caption=title, supports_streaming=True, thumb=thumbnail_file_path)
+
+                # send video to channel
+                app.send_video(chat_id=channel_id, video=file_path, caption=title, supports_streaming=True, thumb=thumbnail_file_path)
+
                 app.edit_message_text(message.chat.id, urld.id, text=f"✅__ Uploaded __✅")
                 # app.send_video(message.chat.id, video=file_path, caption=title, supports_streaming=True, thumb=thumbnail_url)
 
@@ -707,6 +732,12 @@ def scrape_desi49(url, message):
 
 # Define a function to scrape the page for download links and titles
 def scrape_page(url, message):
+
+    # Bin Channel Username
+    channel_username = "mdiskbin"
+    chat = app.get_chat(channel_username)
+    channel_id = chat.id
+
     message.reply_text(f'Scraping: {url}')
     # Disable SSL certificate verification warning
     urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
@@ -787,6 +818,9 @@ def scrape_page(url, message):
                 # Send a message to Telegram containing the downloaded file
                 app.edit_message_text(message.chat.id, url.id, text=f"🚀__ Uploading __🎬__ initiated __🚀\n\n{thumbnail_url}\n")
                 app.send_video(message.chat.id, video=file_path, caption=title, supports_streaming=True, thumb=thumbnail_file_path)
+                # send video to channel
+                app.send_video(chat_id=channel_id, video=file_path, caption=title, supports_streaming=True, thumb=thumbnail_file_path)
+
                 app.edit_message_text(message.chat.id, url.id, text=f"✅__ Uploaded __✅")
                 # app.send_video(message.chat.id, video=file_path, caption=title, supports_streaming=True, thumb=thumbnail_url)
 
@@ -981,6 +1015,9 @@ def mdisktext(client: pyrogram.client.Client, message: pyrogram.types.messages_a
     #     thumbnail_file = client.download_media(message.photo.file_id, file_name=file_path)
     #     print(f"Thumbnail saved to: {thumbnail_file}")
 
+    chat = app.get_chat(channel_username)
+    channel_id = chat.id
+
     urls = re.findall(r"(?P<url>https?://(?:mdisk\.me|teraboxapp\.com|terabox\.com|momerybox\.com|nephobox\.com|link\.getnewlink\.com)/[^\s]+)", message.text or message.caption or "")
 
     if urls:
@@ -1105,14 +1142,18 @@ def mdisktext(client: pyrogram.client.Client, message: pyrogram.types.messages_a
                    
                     # Sleep
                     time.sleep(3)
-
                     # send video to Telegram
                     app.edit_message_text(message.chat.id, msg.id, text=f"🚀__ Uploading __🎬__ initiated __🚀")
+                    # app.send_message(chat_id=channel_id, text=f"🚀__ Uploading __🎬__ initiated __🚀")
                     video_file = os.path.join(os.getcwd(), video_name)
                     with open(video_file, 'rb') as f:
                         app.send_video(message.chat.id, video=f, caption=f"{video_name}", supports_streaming=True, thumb=thumbnail_file, reply_to_message_id=message.id)
+                        # send video to channel
+                        app.send_video(chat_id=channel_id, video=f, caption=f"{video_name}", supports_streaming=True, thumb=thumbnail_file)
+
                     
                     app.edit_message_text(message.chat.id, msg.id, text=f"✅__ Uploaded __✅")
+                    # app.send_message(chat_id=channel_id, text=f"✅__ Uploaded __✅")
                     # delete video from local storage
                     os.remove(video_name)
                     os.remove(thumbnail_file)
