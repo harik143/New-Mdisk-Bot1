@@ -850,32 +850,12 @@ def next_button(callback_data=None):
     )
     return buttons
 
-# def search_and_display(client, message):
-#     global search_input, current_page_search
-#     if message.text == "/search":
-#         message.reply_text("Welcome! Please select an option: /search or /next")
-#     elif message.text == "/next":
-#         if search_input:
-#             url = f"{base_url}?search&s={search_input}&paged={current_page_search}"
-#             current_page_search += 1
-#             message.reply_text(f'Url: {url}')
-#             scrape_page(url, message)
-#             message.reply_text("Please select an option: **/next**")
-#         else:
-#             message.reply_text("Please enter a search keyword first.")
-#     elif message.text == "/reset":
-#         current_page_search = 2
-#         message.reply_text("Current Page Number Reseted")
-#     else:
-#         search_input = message.text
-#         url = f"{base_url}?search&s={search_input}"
-#         message.reply_text(f'Url: {url}')
-#         scrape_page(url, message)
-#         message.reply_text("Please select an option: **/next**")
-
 # ----------------Working Code For Search , Next---------------------
 def search_and_display(client, message):
     global search_input, current_page_search, base_url, current_page, new_base_url
+    # Check if the search_input is present in the titles_list
+    titles_list = ['69', 'Affair', 'Amateur', 'Amateur', 'Amature', 'Anal', 'Anal', 'App Video', 'Asian', 'Ass', 'Ass', 'Aunty', 'B Grade', 'Bang', 'Bath', 'bbw', 'Bengali', 'bhabi', 'Bhojpuri', 'Big ass', 'Big belly', 'Big boobs', 'Big dick', 'Big Navel', 'Big pussy', 'Black', 'Black', 'Boss', 'BTS', 'Cam', 'Cam', 'Car', 'Caught', 'celebrities', 'Change', 'Cleavage', 'Close Fuck', 'Couple', 'Crazy', 'Creamy', 'cuckold', 'Cuckold', 'Cum', 'Cute', 'Cute', 'Dance', 'Desi Porn', 'Dirty Mind', 'Dirty Mind', 'Doggy', 'Family', 'Family', 'Fatty', 'Feel', 'Fhot scenes', 'Fingering', 'First Time', 'For Girls', 'For Money', 'Friend gf','Friend wife', 'Full Flim', 'Funny', 'Glamour', 'Group', 'Hairy', 'Hard', 'Hard', 'Hijab', 'Holi', 'Homemade', 'indu', 'Kannada', 'Kerala', 'kiss', 'lesbian', 'Lesbian', 'licking', 'Lover', 'Making', 'Mallu', 'Masala Film', 'Mask', 'Massage', 'Masterbation', 'Milking', 'Model', 'Myanmar', 'Nepali', 'Nipple', 'Odia', 'Old', 'Old is Gold', 'Old Man', 'Onlyfans', 'Opps', 'Outdoor', 'Paid', 'pain', 'Park', 'Pee', 'Period', 'Photoshoot', 'Pk', 'Pornography', 'Pregnant', 'Pregnant', 'Public', 'Pussy show', 'Quick', 'randi', 'Ride', 'saree', 'Selfe', 'Sexy face', 'share', 'shemale', 'Shorts', 'show boobs', 'shy', 'sleep', 'Slim', 'Solo', 'Son-in-law', 'South Porn', 'Special', 'spy', 'Sri Lanka', 'Star', 'Stripchat', 'Suck', 'Swap', 'Tamil', 'tango', 'Tango Special', 'Taxi', 'teen', 'Telugu', 'threesome', 'Threesome', 'Tight', 'Tiktok', 'Toy', 'Tv', 'Uncategorized', 'Uncensored', 'unsatisfied', 'Vege', 'Video Call', 'Village', 'Virgin pussy', 'Wet', 'XhPremium', 'xvideos.red', 'Youtuber']
+
     if message.text == "/fry999":
         new_base_url = "https://desi2023.com/"
 
@@ -885,14 +865,23 @@ def search_and_display(client, message):
     if message.text == "/search":
         message.reply_text("Welcome! Please select an option: \n1. /desi49 \n2. /fry999")
     elif message.text == "/next":
+
             if search_input:
                 url = f"{new_base_url}?search&s={search_input}&paged={current_page_search}"
                 current_page_search += 1
                 # message.reply_text(f'Url: {url}')
                 if new_base_url == "https://desi2023.com/":
-                    scrape_page(url, message)
+                    if search_input.lower() in [title.lower() for title in titles_list]:
+                        url = f"{new_base_url}category/{search_input}/page/{current_page_search}/"
+                        scrape_page(url, message)
+                        message.reply_text("Please select an option: /next")
+                    else:
+                        url = f"{new_base_url}?search&s={search_input}&paged={current_page_search}"
+                        scrape_page(url, message)
+                        message.reply_text("Please select an option: /next")
                 elif new_base_url == "https://masahub.net/":
                     scrape_desi49(url, message)
+                    message.reply_text("Please select an option: /next")
                 message.reply_text("Please select an option: /next")
             else:
                 url = base_url + f"page/{current_page}/"
@@ -915,16 +904,25 @@ def search_and_display(client, message):
             new_base_url = "https://desi2023.com/"
         message.reply_text("Please enter your search query:")
         search_input = ""
+
     elif search_input == "":
         search_input = message.text
-        url = f"{new_base_url}?search&s={search_input}"
-        # message.reply_text(f'Url: {url}')
-        if new_base_url == "https://desi2023.com/":
+        if search_input.lower() in [title.lower() for title in titles_list]:
+            url = f"{new_base_url}category/{search_input}/"
             scrape_page(url, message)
-        elif new_base_url == "https://masahub.net/":
-            scrape_desi49(url, message)
-        message.reply_text("Please select an option: /next")
-        message.reply_text("If You Want Change select an option: \n1. /desi49 \n2. /fry999")
+        else:
+            url = f"{new_base_url}?search&s={search_input}"
+            
+            if new_base_url == "https://desi2023.com/":
+                scrape_page(url, message)
+                message.reply_text("Please select an option: /next")
+
+            elif new_base_url == "https://masahub.net/":
+                scrape_desi49(url, message)
+                message.reply_text("Please select an option: /next")
+
+            message.reply_text("Please select an option: /next")
+            message.reply_text("If You Want Change select an option: \n1. /desi49 \n2. /fry999")
     else:
         pass
 # ----------------------------------
