@@ -695,7 +695,7 @@ def scrape_desi49(url, message):
                     app.edit_message_text(message.chat.id, urld.id, text=f"✅ Downloaded Successfully! ✅\n\n📥 {title} 📥\n\n{thumbnail_url}\n\n{download_link}")
 
                 print("Video downloaded successfully!")
-                print("------")
+                # print("------")
 
                 # Download the thumbnail image
                 thumbnail_response = requests.get(thumbnail_url)
@@ -709,7 +709,7 @@ def scrape_desi49(url, message):
                 sent_video = app.send_video(message.chat.id, video=file_path, caption=title, supports_streaming=True, thumb=thumbnail_file_path)
 
                 # copy video to channel
-                app.edit_message_text(message.chat.id, url.id, text=f"🚀 Forwarding Video To Channel 🚀")
+                app.edit_message_text(message.chat.id, urld.id, text=f"🚀 Forwarding Video To Channel 🚀")
                 app.send_video(chat_id=channel_id, video=sent_video.video.file_id, caption=f"{title}", supports_streaming=True, thumb=thumbnail_file_path)
                 
                 
