@@ -660,7 +660,7 @@ def scrape_desi49(url, message):
                 total_size = int(video_response.headers.get('content-length', 0))
             except requests.exceptions.RequestException as e:
                 print(f"Error downloading video: {e}. Skipping to next URL.")
-                # app.edit_message_text(message.chat.id, urld.id, text=f"❌ URL Not Valid ❌\n{thumbnail_url}\n")
+                app.edit_message_text(message.chat.id, urld.id, text=f"❌ URL Not Valid ❌\n{thumbnail_url}\n")
                 continue
 
             if download_link and total_size:
