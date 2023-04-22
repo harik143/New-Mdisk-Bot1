@@ -778,8 +778,8 @@ def scrape_page(url, message):
                 url = message.reply_text(f"{thumbnail_url}\n")
                 app.edit_message_text(message.chat.id, url.id, text=f"✅ Downloading ✅\n\n📥 {title} 📥\n\n{thumbnail_url}\n\n{download_url}")
 
-                # app.edit_message_text(message.chat.id, url.id, text=f"📥 {title} 📥\n\n{thumbnail_url}\n")
-                # message.reply_text(f"Title: {title}\n{thumbnail_url}\nDownload URL: {download_url}")
+                # # app.edit_message_text(message.chat.id, url.id, text=f"📥 {title} 📥\n\n{thumbnail_url}\n")
+                # # message.reply_text(f"Title: {title}\n{thumbnail_url}\nDownload URL: {download_url}")
 
                 with open(file_path, "wb") as f:
                     downloaded = 0
