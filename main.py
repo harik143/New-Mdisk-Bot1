@@ -726,7 +726,7 @@ def scrape_desi49(url, message):
                 # pass
                 continue
     new_base_url = "https://masahub.net/"
-    message.reply_text("Please select an option: /next")
+#     message.reply_text("Please select an option: /next")
 
 
 # Define a function to scrape the page for download links and titles
