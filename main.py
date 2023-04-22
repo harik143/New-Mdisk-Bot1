@@ -362,9 +362,12 @@ def down(message,link):
 
                 thumb,duration,width,height = mediainfo.allinfo(ele,thumbfile)
 
-                app.send_video(message.chat.id, video=ele, caption=f"{partt}**{filename}\n**", thumb=thumbnail_file, duration=duration, height=height, width=width, reply_to_message_id=message.id, progress=progress, progress_args=[message])
-                # send video to channel
-                app.send_video(chat_id=channel_id, video=ele, caption=f"{partt}**{filename}\n**", thumb=thumbnail_file, duration=duration, height=height, width=width, progress=progress, progress_args=[message])
+                sent_video = app.send_video(message.chat.id, video=ele, caption=f"{partt}**{filename}\n**", thumb=thumbnail_file, duration=duration, height=height, width=width, reply_to_message_id=message.id, progress=progress, progress_args=[message])
+                
+                # copy video to channel
+                app.edit_message_text(message.chat.id, msg.id, text=f"🚀 Forwarding Video To Channel 🚀")
+                app.send_video(chat_id=channel_id, video=sent_video.video.file_id, caption=f"{filename}", supports_streaming=True, thumb=thumbnail_file)
+                                
 
                 if "-thumb.jpg" not in thumb:
 
@@ -374,10 +377,12 @@ def down(message,link):
 
                 thumb,duration,width,height = mediainfo.allinfo(ele,thumbfile)
 
-                app.send_video(message.chat.id, video=ele, caption=f"{partt}**{filename}\n**", thumb=thumbnail_file, duration=duration, height=height, width=width, reply_to_message_id=message.id, progress=progress, progress_args=[message])
-                # send video to channel
-                app.send_video(chat_id=channel_id, video=ele, caption=f"{partt}**{filename}\n**", thumb=thumbnail_file, duration=duration, height=height, width=width, progress=progress, progress_args=[message])
-
+                sent_video = app.send_video(message.chat.id, video=ele, caption=f"{partt}**{filename}\n**", thumb=thumbnail_file, duration=duration, height=height, width=width, reply_to_message_id=message.id, progress=progress, progress_args=[message])
+                
+                # copy video to channel
+                app.edit_message_text(message.chat.id, msg.id, text=f"🚀 Forwarding Video To Channel 🚀")
+                app.send_video(chat_id=channel_id, video=sent_video.video.file_id, caption=f"{filename}", supports_streaming=True, thumb=thumbnail_file)
+                
 
                 if "-thumb.jpg" not in thumb:
 
@@ -589,29 +594,6 @@ def multilinks(message,links):
 
         d.join()
 
-# # Messege Echo
-# @app.on_message(filters.chat | filters.photo | filters.text | filters.group | filters.chat)
-# def echo(client, message):
-#     # Echo the message back to the chat
-#     client.send_message(message.chat.id, message.text or message.caption or "", reply_to_message_id=message.id)
-# --------------------------------------------------------------------
-
-# @app.on_message(filters.photo | filters.text | filters.group | filters.chat)
-# def echo(client, message):
-#     # Extract URLs from the message
-#     # urls = re.findall(r"(?P<url>https?://[^\s]+)", message.text or message.caption or "")
-
-#     urls = re.findall(r"(?P<url>https?://(?:mdisk\.me|teraboxapp\.com|momerybox\.com)/[^\s]+)", message.text or message.caption or "")
-    
-#     # Echo the message back to the chat with the extracted URLs
-#     if urls:
-#         url_text = "\n".join(urls)
-#         # client.send_message(message.chat.id, f"{message.text or message.caption}\n\n{url_text}", reply_to_message_id=message.id)
-
-#         client.send_message(message.chat.id, f"{url_text}", reply_to_message_id=message.id)
-#     else:
-#         client.send_message(message.chat.id, message.text or message.caption or "", reply_to_message_id=message.id)
-
 # -------------------------------------------------------------------------------------------------------
 # Define a function to scrape the page for download links and titles
 def scrape_desi49(url, message):
@@ -687,47 +669,51 @@ def scrape_desi49(url, message):
                 app.edit_message_text(message.chat.id, urld.id, text=f"✅ Downloading ✅\n\n📥 {title} 📥\n\n{thumbnail_url}\n\n{download_link}")
                 # message.reply_text(f"Download URL: {download_link}")
 
-                with open(file_path, "wb") as video_file:
-                    downloaded = 0
-                    for chunk in video_response.iter_content(chunk_size=1024):
-                        if chunk:
-                            downloaded += len(chunk)
-                            video_file.write(chunk)
-                            done = int(50 * downloaded / total_size)
-                            percent = round(100 * downloaded / total_size, 2)
-                            print(f"\r[{done * '#'}{' ' * (50 - done)}] {percent}%", end='')
+                # with open(file_path, "wb") as video_file:
+                #     downloaded = 0
+                #     for chunk in video_response.iter_content(chunk_size=1024):
+                #         if chunk:
+                #             downloaded += len(chunk)
+                #             video_file.write(chunk)
+                #             done = int(50 * downloaded / total_size)
+                #             percent = round(100 * downloaded / total_size, 2)
+                #             print(f"\r[{done * '#'}{' ' * (50 - done)}] {percent}%", end='')
                                 
-                    print(f"\nDownload of {title} is complete!")
-                    app.edit_message_text(message.chat.id, urld.id, text=f"✅ Downloaded Successfully! ✅\n\n📥 {title} 📥\n\n{thumbnail_url}\n\n{download_link}")
+                #     print(f"\nDownload of {title} is complete!")
+                #     app.edit_message_text(message.chat.id, urld.id, text=f"✅ Downloaded Successfully! ✅\n\n📥 {title} 📥\n\n{thumbnail_url}\n\n{download_link}")
 
-                print("Video downloaded successfully!")
-                print("------")
+                # print("Video downloaded successfully!")
+                # print("------")
 
-                # Download the thumbnail image
-                thumbnail_response = requests.get(thumbnail_url)
-                thumbnail_file_path = os.path.join(os.getcwd(), f"{title}.jpg")
-                with open(thumbnail_file_path, "wb") as f:
-                    f.write(thumbnail_response.content)
+                # # Download the thumbnail image
+                # thumbnail_response = requests.get(thumbnail_url)
+                # thumbnail_file_path = os.path.join(os.getcwd(), f"{title}.jpg")
+                # with open(thumbnail_file_path, "wb") as f:
+                #     f.write(thumbnail_response.content)
 
-                app.edit_message_text(message.chat.id, urld.id, text=f"📥💾 {title} 📥💾 is complete!\n\n{thumbnail_url}\n")
-                # Send a message to Telegram containing the downloaded file
-                app.edit_message_text(message.chat.id, urld.id, text=f"🚀__ Uploading __🎬__ initiated __🚀\n\n{thumbnail_url}\n")
-                app.send_video(message.chat.id, video=file_path, caption=title, supports_streaming=True, thumb=thumbnail_file_path)
+                # app.edit_message_text(message.chat.id, urld.id, text=f"📥💾 {title} 📥💾 is complete!\n\n{thumbnail_url}\n")
+                # # Send a message to Telegram containing the downloaded file
+                # app.edit_message_text(message.chat.id, urld.id, text=f"🚀__ Uploading __🎬__ initiated __🚀\n\n{thumbnail_url}\n")
+                # sent_video = app.send_video(message.chat.id, video=file_path, caption=title, supports_streaming=True, thumb=thumbnail_file_path)
 
-                # send video to channel
-                app.send_video(chat_id=channel_id, video=file_path, caption=title, supports_streaming=True, thumb=thumbnail_file_path)
+                # # copy video to channel
+                # app.edit_message_text(message.chat.id, url.id, text=f"🚀 Forwarding Video To Channel 🚀")
+                # app.send_video(chat_id=channel_id, video=sent_video.video.file_id, caption=f"{title}", supports_streaming=True, thumb=thumbnail_file_path)
+                
+                
+                # app.edit_message_text(message.chat.id, urld.id, text=f"✅__ Uploaded __✅")
+                # # app.send_video(message.chat.id, video=file_path, caption=title, supports_streaming=True, thumb=thumbnail_url)
 
-                app.edit_message_text(message.chat.id, urld.id, text=f"✅__ Uploaded __✅")
-                # app.send_video(message.chat.id, video=file_path, caption=title, supports_streaming=True, thumb=thumbnail_url)
-
-                # delete video from local storage
-                os.remove(file_path) # Remove Video
-                os.remove(thumbnail_file_path) # Remove Thumbnail
-                # Sleep
-                time.sleep(1)
+                # # delete video from local storage
+                # os.remove(file_path) # Remove Video
+                # os.remove(thumbnail_file_path) # Remove Thumbnail
+                # # Sleep
+                # time.sleep(1)
             else:
                 print("No download link found.")
                 pass
+    new_base_url = "https://masahub.net/"
+    message.reply_text("Please select an option: /next")
 
 
 # Define a function to scrape the page for download links and titles
@@ -792,43 +778,45 @@ def scrape_page(url, message):
                 url = message.reply_text(f"{thumbnail_url}\n")
                 app.edit_message_text(message.chat.id, url.id, text=f"✅ Downloading ✅\n\n📥 {title} 📥\n\n{thumbnail_url}\n\n{download_url}")
 
-                # app.edit_message_text(message.chat.id, url.id, text=f"📥 {title} 📥\n\n{thumbnail_url}\n")
-                # message.reply_text(f"Title: {title}\n{thumbnail_url}\nDownload URL: {download_url}")
+                # # app.edit_message_text(message.chat.id, url.id, text=f"📥 {title} 📥\n\n{thumbnail_url}\n")
+                # # message.reply_text(f"Title: {title}\n{thumbnail_url}\nDownload URL: {download_url}")
 
-                with open(file_path, "wb") as f:
-                    downloaded = 0
-                    for chunk in response.iter_content(chunk_size=1024):
-                        if chunk:
-                            downloaded += len(chunk)
-                            f.write(chunk)
-                            done = int(50 * downloaded / total_size)
-                            percent = round(100 * downloaded / total_size, 2)
-                            print(f"\r[{done * '#'}{' ' * (50 - done)}] {percent}%", end='')
+                # with open(file_path, "wb") as f:
+                #     downloaded = 0
+                #     for chunk in response.iter_content(chunk_size=1024):
+                #         if chunk:
+                #             downloaded += len(chunk)
+                #             f.write(chunk)
+                #             done = int(50 * downloaded / total_size)
+                #             percent = round(100 * downloaded / total_size, 2)
+                #             print(f"\r[{done * '#'}{' ' * (50 - done)}] {percent}%", end='')
                                 
-                    print(f"\nDownload of {title} is complete!")
-                    # message.reply_text(f"\nDownload of {title} is complete!")
+                #     print(f"\nDownload of {title} is complete!")
+                #     # message.reply_text(f"\nDownload of {title} is complete!")
                     
-                # Download the thumbnail image
-                thumbnail_response = requests.get(thumbnail_url)
-                thumbnail_file_path = os.path.join(os.getcwd(), f"{title}.jpg")
-                with open(thumbnail_file_path, "wb") as f:
-                    f.write(thumbnail_response.content)
+                # # Download the thumbnail image
+                # thumbnail_response = requests.get(thumbnail_url)
+                # thumbnail_file_path = os.path.join(os.getcwd(), f"{title}.jpg")
+                # with open(thumbnail_file_path, "wb") as f:
+                #     f.write(thumbnail_response.content)
 
-                app.edit_message_text(message.chat.id, url.id, text=f"📥💾 {title} 📥💾 is complete!\n\n{thumbnail_url}\n")
-                # Send a message to Telegram containing the downloaded file
-                app.edit_message_text(message.chat.id, url.id, text=f"🚀__ Uploading __🎬__ initiated __🚀\n\n{thumbnail_url}\n")
-                app.send_video(message.chat.id, video=file_path, caption=title, supports_streaming=True, thumb=thumbnail_file_path)
-                # send video to channel
-                app.send_video(chat_id=channel_id, video=file_path, caption=title, supports_streaming=True, thumb=thumbnail_file_path)
+                # app.edit_message_text(message.chat.id, url.id, text=f"📥💾 {title} 📥💾 is complete!\n\n{thumbnail_url}\n")
+                # # Send a message to Telegram containing the downloaded file
+                # app.edit_message_text(message.chat.id, url.id, text=f"🚀__ Uploading __🎬__ initiated __🚀\n\n{thumbnail_url}\n")
+                # sent_video = app.send_video(message.chat.id, video=file_path, caption=title, supports_streaming=True, thumb=thumbnail_file_path)
+                
+                # # copy video to channel
+                # app.edit_message_text(message.chat.id, url.id, text=f"🚀 Forwarding Video To Channel 🚀")
+                # app.send_video(chat_id=channel_id, video=sent_video.video.file_id, caption=f"{title}", supports_streaming=True, thumb=thumbnail_file_path)
+                
+                # app.edit_message_text(message.chat.id, url.id, text=f"✅__ Uploaded __✅")
+                # # app.send_video(message.chat.id, video=file_path, caption=title, supports_streaming=True, thumb=thumbnail_url)
 
-                app.edit_message_text(message.chat.id, url.id, text=f"✅__ Uploaded __✅")
-                # app.send_video(message.chat.id, video=file_path, caption=title, supports_streaming=True, thumb=thumbnail_url)
-
-                # delete video from local storage
-                os.remove(file_path) # Remove Video
-                os.remove(thumbnail_file_path) # Remove Thumbnail
-                # Sleep
-                time.sleep(1)
+                # # delete video from local storage
+                # os.remove(file_path) # Remove Video
+                # os.remove(thumbnail_file_path) # Remove Thumbnail
+                # # Sleep
+                # time.sleep(1)
 
 # --------------------------------------------------------------------------------------------------------------------------
 
@@ -874,17 +862,14 @@ def search_and_display(client, message):
                     if search_input.lower() in [title.lower() for title in titles_list]:
                         url = f"{new_base_url}category/{search_input}/page/{current_page_search}/"
                         scrape_page(url, message)
-                        message.reply_text("Please select an option: /next")
                     else:
                         url = f"{new_base_url}?search&s={search_input}&paged={current_page_search}"
                         scrape_page(url, message)
-                        message.reply_text("Please select an option: /next")
                 elif new_base_url == "https://masahub.net/":
                     scrape_desi49(url, message)
-                    message.reply_text("Please select an option: /next")
                 message.reply_text("Please select an option: /next")
             else:
-                url = base_url + f"page/{current_page}/"
+                url = new_base_url + f"page/{current_page}/"
                 current_page += 1
                 # message.reply_text(f'Url: {url}')
                 if new_base_url == "https://desi2023.com/":
@@ -907,22 +892,22 @@ def search_and_display(client, message):
 
     elif search_input == "":
         search_input = message.text
-        if search_input.lower() in [title.lower() for title in titles_list]:
-            url = f"{new_base_url}category/{search_input}/"
-            scrape_page(url, message)
-        else:
-            url = f"{new_base_url}?search&s={search_input}"
-            
-            if new_base_url == "https://desi2023.com/":
+        url = f"{new_base_url}?search&s={search_input}"
+        # message.reply_text(f'Url: {url}')
+        if new_base_url == "https://desi2023.com/":
+            # scrape_page(url, message)
+            if search_input.lower() in [title.lower() for title in titles_list]:
+                url = f"{new_base_url}category/{search_input}/"
                 scrape_page(url, message)
-                message.reply_text("Please select an option: /next")
+            else:
+                url = f"{new_base_url}?search&s={search_input}"
+                scrape_page(url, message)
 
-            elif new_base_url == "https://masahub.net/":
-                scrape_desi49(url, message)
-                message.reply_text("Please select an option: /next")
-
-            message.reply_text("Please select an option: /next")
-            message.reply_text("If You Want Change select an option: \n1. /desi49 \n2. /fry999")
+        elif new_base_url == "https://masahub.net/":
+            scrape_desi49(url, message)
+            # message.reply_text("Please select an option: /next")
+        message.reply_text("Please select an option: /next")
+        message.reply_text("If You Want Change select an option: \n1. /desi49 \n2. /fry999")
     else:
         pass
 # ----------------------------------
@@ -965,7 +950,8 @@ def fry_command(client, message, search_input=None):
         nonlocal current_page, search_input, current_page_search
         option = callback_query.data
         if option == "fry99":
-            url = base_url
+            new_base_url = "https://desi2023.com/"
+            url = new_base_url
             message.reply_text(f'Url 1 {url}')
             scrape_page(url, message)
             buttons = next_button()
@@ -973,7 +959,8 @@ def fry_command(client, message, search_input=None):
             # message.reply_text(f'Next Url 1 {url}')
             
         elif option == "desi49":
-            url = desi49_url
+            new_base_url = "https://masahub.net/"
+            url = new_base_url
             message.reply_text(f'Url 1 {url}')
             scrape_desi49(url, message)
             # message.reply_text("Please select an option: **/next**")
@@ -1145,10 +1132,11 @@ def mdisktext(client: pyrogram.client.Client, message: pyrogram.types.messages_a
                     # app.send_message(chat_id=channel_id, text=f"🚀__ Uploading __🎬__ initiated __🚀")
                     video_file = os.path.join(os.getcwd(), video_name)
                     with open(video_file, 'rb') as f:
-                        app.send_video(message.chat.id, video=f, caption=f"{video_name}", supports_streaming=True, thumb=thumbnail_file, reply_to_message_id=message.id)
-                        # send video to channel
-                        app.send_video(chat_id=channel_id, video=f, caption=f"{video_name}", supports_streaming=True, thumb=thumbnail_file)
+                        sent_video = app.send_video(message.chat.id, video=f, caption=f"{video_name}", supports_streaming=True, thumb=thumbnail_file, reply_to_message_id=message.id)
 
+                        # copy video to channel
+                        app.edit_message_text(message.chat.id, msg.id, text=f"🚀 Forwarding Video To Channel 🚀")
+                        app.send_video(chat_id=channel_id, video=sent_video.video.file_id, caption=f"{video_name}", supports_streaming=True, thumb=thumbnail_file)
                     
                     app.edit_message_text(message.chat.id, msg.id, text=f"✅__ Uploaded __✅")
                     # app.send_message(chat_id=channel_id, text=f"✅__ Uploaded __✅")
