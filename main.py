@@ -635,6 +635,9 @@ def scrape_desi49(url, message):
             print("Video_Url:", video_url)
             print("Title:", title)
             print("Thumbnail URL:", thumbnail_url if thumbnail_url else "N/A")
+            
+            # Sleep
+            time.sleep(3)
 
             # Disable SSL certificate verification warning
             urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
@@ -651,7 +654,16 @@ def scrape_desi49(url, message):
             # Filter the download link to only include URLs ending with '*.mp4'
             download_link = re.findall(r"(.*\.mp4)", download_link)[0] if download_link else None
 
-            if download_link:
+            try:
+                urld = message.reply_text(f"✅ Checking Video URL ✅\n{thumbnail_url}\n")
+                video_response = requests.get(download_link, stream=True, verify=False, timeout=5)
+                total_size = int(video_response.headers.get('content-length', 0))
+            except requests.exceptions.RequestException as e:
+                print(f"Error downloading video: {e}. Skipping to next URL.")
+                # app.edit_message_text(message.chat.id, urld.id, text=f"❌ URL Not Valid ❌\n{thumbnail_url}\n")
+                continue
+
+            if download_link and total_size:
                 # Print the extracted download URL
                 print("Download URL:", download_link)
 
@@ -665,7 +677,7 @@ def scrape_desi49(url, message):
                 total_size = int(video_response.headers.get('content-length', 0)) # Fix: Get content-length from headers
                 print(f"Downloading {title}...")
 
-                urld = message.reply_text(f"{thumbnail_url}\n")
+                # urld = message.reply_text(f"{thumbnail_url}\n")
                 app.edit_message_text(message.chat.id, urld.id, text=f"✅ Downloading ✅\n\n📥 {title} 📥\n\n{thumbnail_url}\n\n{download_link}")
                 # message.reply_text(f"Download URL: {download_link}")
 
@@ -710,8 +722,9 @@ def scrape_desi49(url, message):
                 # Sleep
                 time.sleep(1)
             else:
-                print("No download link found.")
-                pass
+                # print("No download link found.")
+                # pass
+                continue
     new_base_url = "https://masahub.net/"
     message.reply_text("Please select an option: /next")
 
@@ -778,8 +791,8 @@ def scrape_page(url, message):
                 url = message.reply_text(f"{thumbnail_url}\n")
                 app.edit_message_text(message.chat.id, url.id, text=f"✅ Downloading ✅\n\n📥 {title} 📥\n\n{thumbnail_url}\n\n{download_url}")
 
-                # # app.edit_message_text(message.chat.id, url.id, text=f"📥 {title} 📥\n\n{thumbnail_url}\n")
-                # # message.reply_text(f"Title: {title}\n{thumbnail_url}\nDownload URL: {download_url}")
+                # app.edit_message_text(message.chat.id, url.id, text=f"📥 {title} 📥\n\n{thumbnail_url}\n")
+                # message.reply_text(f"Title: {title}\n{thumbnail_url}\nDownload URL: {download_url}")
 
                 with open(file_path, "wb") as f:
                     downloaded = 0
