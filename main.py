@@ -681,15 +681,28 @@ def scrape_desi49(url, message):
                 app.edit_message_text(message.chat.id, urld.id, text=f"✅ Downloading ✅\n\n📥 {title} 📥\n\n{thumbnail_url}\n\n{download_link}")
                 # message.reply_text(f"Download URL: {download_link}")
 
+                # Define a variable to store the previous message text
+                previous_text = ""
+
                 with open(file_path, "wb") as video_file:
                     downloaded = 0
                     for chunk in video_response.iter_content(chunk_size=1024):
                         if chunk:
                             downloaded += len(chunk)
                             video_file.write(chunk)
-                            done = int(50 * downloaded / total_size)
-                            percent = round(100 * downloaded / total_size, 2)
-                            print(f"\r[{done * '#'}{' ' * (50 - done)}] {percent}%", end='')
+                            done = int(14 * downloaded / total_size)
+                            percent = int(round(100 * downloaded / total_size, 2))
+                            progress_text = f"\r{done * '🚀'}{' ' * (10 - done)} : {percent}%"
+                            print(progress_text, end='')
+                            
+                            # Inside the loop where you update the download progress
+                            if progress_text != previous_text:
+                                # app.edit_message_text(message.chat.id, urld.id, text=progress_text)
+                                app.edit_message_text(message.chat.id, urld.id, text=f"{progress_text}\n\n✅ Downloading ✅\n\n📥 {title} 📥\n\n{thumbnail_url}\n\n{download_link}")
+                                previous_text = progress_text
+
+                            # app.edit_message_text(message.chat.id, message.message_id, text=progress_text)
+
                                 
                     print(f"\nDownload of {title} is complete!")
                     app.edit_message_text(message.chat.id, urld.id, text=f"✅ Downloaded Successfully! ✅\n\n📥 {title} 📥\n\n{thumbnail_url}\n\n{download_link}")
