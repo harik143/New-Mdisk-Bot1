@@ -690,17 +690,26 @@ def scrape_desi49(url, message):
                         if chunk:
                             downloaded += len(chunk)
                             video_file.write(chunk)
+                            # -----------------------------------------------
                             done = int(14 * downloaded / total_size)
                             percent = int(round(100 * downloaded / total_size, 2))
-                            progress_text = f"\r{done * '🚀'}{' ' * (10 - done)} : {percent}%"
-                            print(progress_text, end='')
                             
-                            # Inside the loop where you update the download progress
-                            if progress_text != previous_text:
-                                # app.edit_message_text(message.chat.id, urld.id, text=progress_text)
-                                app.edit_message_text(message.chat.id, urld.id, text=f"{progress_text}\n\n✅ Downloading ✅\n\n📥 {title} 📥\n\n{thumbnail_url}\n\n{download_link}")
-                                previous_text = progress_text
-
+                            if percent%2 == 0:
+                                percent=percent
+                                progress_text = f"\r{done * '🚀'}{' ' * (10 - done)} : {percent}%"
+                                print(progress_text, end='')
+                                
+                                # Inside the loop where you update the download progress
+                                if progress_text != previous_text:
+                                    # app.edit_message_text(message.chat.id, urld.id, text=progress_text)
+                                    app.edit_message_text(message.chat.id, urld.id, text=f"{progress_text}\n\n✅ Downloading ✅\n\n📥 {title} 📥\n\n{thumbnail_url}\n\n{download_link}")
+                                    previous_text = progress_text
+                                    time.sleep(1)
+                            else:
+                                # Sleep
+                                # time.sleep(2)
+                                pass
+                            # -------------------------------------------------------
                             # app.edit_message_text(message.chat.id, message.message_id, text=progress_text)
 
                                 
@@ -806,6 +815,9 @@ def scrape_page(url, message):
 
                 # app.edit_message_text(message.chat.id, url.id, text=f"📥 {title} 📥\n\n{thumbnail_url}\n")
                 # message.reply_text(f"Title: {title}\n{thumbnail_url}\nDownload URL: {download_url}")
+                
+                # Define a variable to store the previous message text
+                previous_text = ""
 
                 with open(file_path, "wb") as f:
                     downloaded = 0
@@ -813,9 +825,26 @@ def scrape_page(url, message):
                         if chunk:
                             downloaded += len(chunk)
                             f.write(chunk)
-                            done = int(50 * downloaded / total_size)
-                            percent = round(100 * downloaded / total_size, 2)
-                            print(f"\r[{done * '#'}{' ' * (50 - done)}] {percent}%", end='')
+                            # -----------------------------------------------
+                            done = int(14 * downloaded / total_size)
+                            percent = int(round(100 * downloaded / total_size, 2))
+                            
+                            if percent%2 == 0:
+                                percent=percent
+                                progress_text = f"\r{done * '🚀'}{' ' * (10 - done)} : {percent}%"
+                                print(progress_text, end='')
+                                
+                                # Inside the loop where you update the download progress
+                                if progress_text != previous_text:
+                                    # app.edit_message_text(message.chat.id, urld.id, text=progress_text)
+                                    app.edit_message_text(message.chat.id, url.id, text=f"{progress_text}\n\n✅ Downloading ✅\n\n📥 {title} 📥\n\n{thumbnail_url}\n\n{download_url}")
+                                    previous_text = progress_text
+                                    time.sleep(1)
+                            else:
+                                # Sleep
+                                # time.sleep(2)
+                                pass
+                            # -------------------------------------------------------
                                 
                     print(f"\nDownload of {title} is complete!")
                     # message.reply_text(f"\nDownload of {title} is complete!")
