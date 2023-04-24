@@ -803,8 +803,8 @@ def scrape_page(url, message):
                 # Construct the file path
                 file_path = os.path.join(os.getcwd(), filename + ".mp4")
                 # Send a GET request to the download URL and save the file to disk
-                response = requests.get(download_url, stream=True, verify=False)
-                total_size = int(response.headers.get('content-length', 0))
+                # response = requests.get(download_url, stream=True, verify=False)
+                # total_size = int(response.headers.get('content-length', 0))
 
                 print(f"Downloading {title}...")
                 download_url = link['href']
@@ -816,62 +816,78 @@ def scrape_page(url, message):
                 # app.edit_message_text(message.chat.id, url.id, text=f"📥 {title} 📥\n\n{thumbnail_url}\n")
                 # message.reply_text(f"Title: {title}\n{thumbnail_url}\nDownload URL: {download_url}")
                 
-                # Define a variable to store the previous message text
-                previous_text = ""
+                try:
+                    app.edit_message_text(message.chat.id, url.id, text=f"✅ Checking Video URL ✅\n{thumbnail_url}\n")
+                    video_response = requests.get(download_url, stream=True, verify=False, timeout=2)
+                    total_size = int(video_response.headers.get('content-length', 0))
+                    if total_size != 0:
+                        app.edit_message_text(message.chat.id, url.id, text=f"✅ Video URL Good ✅\n{thumbnail_url}\n")
+                    else:
+                        # print(f"Error downloading video: {e}. Skipping to next URL.")
+                        app.edit_message_text(message.chat.id, url.id, text=f"❌ URL Not Valid ❌\n{thumbnail_url}\n")
+                        continue
+                except requests.exceptions.RequestException as e:
+                    print(f"Error downloading video: {e}. Skipping to next URL.")
+                    app.edit_message_text(message.chat.id, url.id, text=f"❌ URL Not Valid ❌\n{thumbnail_url}\n")
+                    continue
 
-                with open(file_path, "wb") as f:
-                    downloaded = 0
-                    for chunk in response.iter_content(chunk_size=1024):
-                        if chunk:
-                            downloaded += len(chunk)
-                            f.write(chunk)
-                            # -----------------------------------------------
-                            done = int(14 * downloaded / total_size)
-                            percent = int(round(100 * downloaded / total_size, 2))
-                            
-                            if percent%5 == 0:
-                                percent=percent
-                                progress_text = f"\r{done * '🚀'}{' ' * (10 - done)} : {percent}%"
-                                print(progress_text, end='')
+                if download_url and total_size != 0:
+                    # Define a variable to store the previous message text
+                    previous_text = ""
+
+                    with open(file_path, "wb") as f:
+                        downloaded = 0
+                        for chunk in response.iter_content(chunk_size=1024):
+                            if chunk:
+                                downloaded += len(chunk)
+                                f.write(chunk)
+                                # -----------------------------------------------
+                                done = int(14 * downloaded / total_size)
+                                percent = int(round(100 * downloaded / total_size, 2))
                                 
-                                # Inside the loop where you update the download progress
-                                if progress_text != previous_text:
-                                    # app.edit_message_text(message.chat.id, urld.id, text=progress_text)
-                                    app.edit_message_text(message.chat.id, url.id, text=f"✅ Downloading :{progress_text} ✅\n{thumbnail_url}")
-                                    previous_text = progress_text
-                                    # time.sleep(1)
-                            else:
-                                # Sleep
-                                # time.sleep(2)
-                                pass
-                            # -------------------------------------------------------
-                                
-                    print(f"\nDownload of {title} is complete!")
-                    # message.reply_text(f"\nDownload of {title} is complete!")
+                                if percent%5 == 0:
+                                    percent=percent
+                                    progress_text = f"\r{done * '🚀'}{' ' * (10 - done)} : {percent}%"
+                                    print(progress_text, end='')
+                                    
+                                    # Inside the loop where you update the download progress
+                                    if progress_text != previous_text:
+                                        # app.edit_message_text(message.chat.id, urld.id, text=progress_text)
+                                        app.edit_message_text(message.chat.id, url.id, text=f"✅ Downloading :{progress_text} ✅\n{thumbnail_url}")
+                                        previous_text = progress_text
+                                        # time.sleep(1)
+                                else:
+                                    # Sleep
+                                    # time.sleep(2)
+                                    pass
+                                # -------------------------------------------------------
+                                    
+                        print(f"\nDownload of {title} is complete!")
+                        # message.reply_text(f"\nDownload of {title} is complete!")
+                        
+                    # Download the thumbnail image
+                    thumbnail_response = requests.get(thumbnail_url)
+                    thumbnail_file_path = os.path.join(os.getcwd(), f"{title}.jpg")
+                    with open(thumbnail_file_path, "wb") as f:
+                        f.write(thumbnail_response.content)
+
+                    app.edit_message_text(message.chat.id, url.id, text=f"📥💾 {title} 📥💾 is complete!\n\n{thumbnail_url}\n")
+                    # Send a message to Telegram containing the downloaded file
+                    app.edit_message_text(message.chat.id, url.id, text=f"🚀__ Uploading __🎬__ initiated __🚀\n\n{thumbnail_url}\n")
+                    sent_video = app.send_video(message.chat.id, video=file_path, caption=title, supports_streaming=True, thumb=thumbnail_file_path)
                     
-                # Download the thumbnail image
-                thumbnail_response = requests.get(thumbnail_url)
-                thumbnail_file_path = os.path.join(os.getcwd(), f"{title}.jpg")
-                with open(thumbnail_file_path, "wb") as f:
-                    f.write(thumbnail_response.content)
+                    # copy video to channel
+                    app.edit_message_text(message.chat.id, url.id, text=f"🚀 Forwarding Video To Channel 🚀")
+                    app.send_video(chat_id=channel_id, video=sent_video.video.file_id, caption=f"{title}", supports_streaming=True, thumb=thumbnail_file_path)
+                    
+                    app.edit_message_text(message.chat.id, url.id, text=f"✅__ Uploaded __✅")
+                    # app.send_video(message.chat.id, video=file_path, caption=title, supports_streaming=True, thumb=thumbnail_url)
 
-                app.edit_message_text(message.chat.id, url.id, text=f"📥💾 {title} 📥💾 is complete!\n\n{thumbnail_url}\n")
-                # Send a message to Telegram containing the downloaded file
-                app.edit_message_text(message.chat.id, url.id, text=f"🚀__ Uploading __🎬__ initiated __🚀\n\n{thumbnail_url}\n")
-                sent_video = app.send_video(message.chat.id, video=file_path, caption=title, supports_streaming=True, thumb=thumbnail_file_path)
-                
-                # copy video to channel
-                app.edit_message_text(message.chat.id, url.id, text=f"🚀 Forwarding Video To Channel 🚀")
-                app.send_video(chat_id=channel_id, video=sent_video.video.file_id, caption=f"{title}", supports_streaming=True, thumb=thumbnail_file_path)
-                
-                app.edit_message_text(message.chat.id, url.id, text=f"✅__ Uploaded __✅")
-                # app.send_video(message.chat.id, video=file_path, caption=title, supports_streaming=True, thumb=thumbnail_url)
-
-                # delete video from local storage
-                os.remove(file_path) # Remove Video
-                os.remove(thumbnail_file_path) # Remove Thumbnail
-                # Sleep
-                time.sleep(1)
+                    # delete video from local storage
+                    os.remove(file_path) # Remove Video
+                    os.remove(thumbnail_file_path) # Remove Thumbnail
+                    # Sleep
+                    time.sleep(1)
 
 # --------------------------------------------------------------------------------------------------------------------------
 
